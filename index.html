@@ -1,0 +1,2538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Planner</title>
+<style>
+  :root {
+    --primary: #7c6fcd;
+    --primary-light: #ede9ff;
+    --accent2: #86efac;
+    --bg:      #f4f3fb;
+    --card:    #ffffff;
+    --border:  #e5e0f8;
+    --text:    #2d2b3d;
+    --muted:   #9490b5;
+    --today-header: linear-gradient(135deg,#7c6fcd,#a78bfa);
+    --sat-col:  #fff7ed;
+    --sun-col:  #fff1f2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: linear-gradient(135deg,#7c6fcd 0%,#a78bfa 100%);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(124,111,205,0.3);
+  }
+  .topbar-title { font-size: 1.25rem; font-weight: 700; }
+  .topbar-sub   { font-size: 0.78rem; opacity: 0.75; margin-top: 1px; }
+
+  .week-nav { display: flex; align-items: center; gap: 10px; }
+  .week-nav button {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    width: 32px; height: 32px; border-radius: 50%;
+    font-size: 1.1rem; cursor: pointer; transition: background 0.2s;
+  }
+  .week-nav button:hover { background: rgba(255,255,255,0.35); }
+  .week-nav .week-label { font-size: 0.9rem; font-weight: 600; min-width: 220px; text-align: center; }
+
+  .topbar-stats { display: flex; gap: 20px; }
+  .tstat { text-align: center; }
+  .tstat-val { font-size: 1.1rem; font-weight: 700; }
+  .tstat-lbl { font-size: 0.65rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── Main layout ── */
+  .main-layout {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Left sidebar ── */
+  .left-sidebar {
+    width: 230px;
+    min-width: 230px;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .left-sidebar::-webkit-scrollbar { width: 4px; }
+  .left-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Sidebar sections */
+  .sb-section {
+    border-bottom: 1px solid var(--border);
+    padding: 12px 14px;
+  }
+  .sb-section-title {
+    font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text);
+    text-align: center;
+    background: var(--primary-light);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    margin-bottom: 10px;
+  }
+
+  /* Mini calendar */
+  .mini-cal { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+  .mini-cal th {
+    color: var(--muted); font-weight: 700;
+    padding: 3px 0; text-align: center;
+    font-size: 0.65rem; text-transform: uppercase;
+  }
+  .mini-cal th.star-col { color: var(--primary); }
+  .mini-cal td {
+    text-align: center; padding: 3px 1px;
+    cursor: pointer; border-radius: 4px;
+    transition: background 0.1s;
+    color: var(--text);
+  }
+  .mini-cal td:hover { background: var(--primary-light); }
+  .mini-cal td.other-month { color: #ccc; }
+  .mini-cal td.today-cell {
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+  }
+  .mini-cal td.in-week {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .mini-cal td.in-week.today-cell {
+    background: var(--primary);
+    color: white;
+  }
+  .mini-cal .week-num {
+    color: var(--primary); font-weight: 700; font-size: 0.62rem;
+    padding-right: 4px;
+  }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cal-nav button {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 1rem; padding: 2px 6px;
+    border-radius: 4px; transition: all 0.1s;
+  }
+  .cal-nav button:hover { background: var(--primary-light); color: var(--primary); }
+  .cal-nav span { font-size: 0.8rem; font-weight: 700; color: var(--text); }
+
+  /* Focus textarea */
+  .focus-textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+    font-family: inherit;
+    color: var(--primary);
+    font-weight: 600;
+    font-style: italic;
+    background: var(--primary-light);
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    text-align: center;
+    transition: border-color 0.15s;
+  }
+  .focus-textarea:focus { border-color: var(--primary); background: white; }
+
+  /* Quick links */
+  .ql-list { display: flex; flex-direction: column; gap: 5px; }
+  .ql-item {
+    display: flex; align-items: center; gap: 7px;
+    padding: 6px 9px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .ql-item:hover { border-color: var(--primary); box-shadow: 0 1px 6px rgba(124,111,205,0.12); }
+  .ql-favicon { font-size: 1rem; flex-shrink: 0; width: 20px; text-align: center; line-height: 1; }
+  .ql-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .ql-label {
+    font-size: 0.78rem; font-weight: 600; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border: none; background: transparent; font-family: inherit;
+    outline: none; width: 100%;
+  }
+  .ql-label::placeholder { color: var(--muted); font-weight: 400; }
+  .ql-url {
+    font-size: 0.65rem; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border: none; background: transparent; font-family: inherit;
+    outline: none; width: 100%;
+  }
+  .ql-url::placeholder { color: #ccc; }
+  .ql-open {
+    font-size: 0.85rem; flex-shrink: 0; opacity: 0;
+    transition: opacity 0.12s; text-decoration: none;
+    color: var(--primary); padding: 2px 3px; border-radius: 4px;
+  }
+  .ql-item:hover .ql-open { opacity: 1; }
+  .ql-del {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; font-size: 0.85rem; opacity: 0;
+    transition: opacity 0.12s; flex-shrink: 0; padding: 0 2px;
+  }
+  .ql-item:hover .ql-del { opacity: 1; }
+  .ql-del:hover { color: #f87171; }
+  .add-sb-btn {
+    background: none; border: 1px dashed var(--border);
+    border-radius: 6px; padding: 4px 8px;
+    font-size: 0.72rem; color: var(--muted); cursor: pointer;
+    font-family: inherit; width: 100%; margin-top: 4px;
+    transition: all 0.12s;
+  }
+  .add-sb-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+  /* Weekly todo list */
+  .weekly-todo-list { display: flex; flex-direction: column; gap: 4px; }
+  .wtodo-item { display: flex; align-items: center; gap: 6px; }
+  .wtodo-item input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
+  .wtodo-text {
+    flex: 1; border: none; background: transparent;
+    font-size: 0.78rem; font-family: inherit; color: var(--text); outline: none;
+  }
+  .wtodo-text::placeholder { color: var(--muted); }
+  .wtodo-item:has(input[type=checkbox]:checked) .wtodo-text {
+    text-decoration: line-through; color: var(--muted);
+  }
+
+  /* ── Week grid area ── */
+  .week-scroll {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    padding: 16px 20px 24px;
+  }
+
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(210px, 1fr));
+    gap: 10px;
+    min-width: 1300px;
+  }
+
+  /* ── Day column ── */
+  .day-col {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .day-col.today { border: 2px solid var(--primary); box-shadow: 0 0 0 3px rgba(124,111,205,0.12); }
+  .day-col.sat   { background: #fff7ed; }
+  .day-col.sun   { background: #fff1f2; }
+
+  .day-header {
+    padding: 10px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .day-col.today .day-header {
+    background: var(--today-header);
+    color: white;
+    border-bottom-color: transparent;
+  }
+  .day-name-big   { font-size: 1rem; font-weight: 700; }
+  .day-date-small { font-size: 0.72rem; opacity: 0.65; margin-top: 1px; }
+  .day-col.today .day-date-small { opacity: 0.8; }
+
+  .mini-ring { position: relative; display:inline-flex; align-items:center; justify-content:center; }
+  .mini-ring svg { transform: rotate(-90deg); }
+  .mini-ring .ring-bg   { fill:none; stroke: var(--primary-light); stroke-width:4; }
+  .day-col.today .mini-ring .ring-bg { stroke: rgba(255,255,255,0.25); }
+  .mini-ring .ring-fill { fill:none; stroke:var(--primary); stroke-width:4; stroke-linecap:round; transition: stroke-dashoffset 0.4s; }
+  .day-col.today .mini-ring .ring-fill { stroke: rgba(255,255,255,0.9); }
+  .mini-ring .ring-lbl  { position:absolute; font-size:0.58rem; font-weight:700; color:var(--primary); line-height:1; }
+  .day-col.today .mini-ring .ring-lbl { color:white; }
+
+  .day-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+
+  .sec-label {
+    font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--muted); margin-bottom: 5px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .intention-input {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 9px; font-size: 0.8rem; font-family: inherit;
+    color: var(--text); background: var(--bg); resize: none; outline: none;
+    transition: border-color 0.15s; line-height: 1.4;
+  }
+  .intention-input:focus { border-color: var(--primary); background: white; }
+
+  .pri-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 8px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--bg);
+    margin-bottom: 4px; transition: all 0.15s;
+  }
+  .pri-item:has(input[type=checkbox]:checked) { background: #f0fdf4; border-color: var(--accent2); }
+  .pri-num {
+    width: 18px; height: 18px; border-radius: 50%;
+    font-size: 0.65rem; font-weight: 700; color: white;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .pri-item:nth-child(1) .pri-num { background: var(--primary); }
+  .pri-item:nth-child(2) .pri-num { background: #f472b6; }
+  .pri-item:nth-child(3) .pri-num { background: #fb923c; }
+  .pri-text {
+    flex: 1; border: none; background: transparent;
+    font-size: 0.78rem; font-family: inherit; color: var(--text); outline: none;
+  }
+  .pri-text::placeholder { color: var(--muted); }
+  .pri-item:has(input[type=checkbox]:checked) .pri-text { text-decoration: line-through; color: var(--muted); }
+  .pri-item input[type=checkbox] { width:15px; height:15px; accent-color:var(--primary); cursor:pointer; flex-shrink:0; }
+
+  .schedule-wrap { max-height: 280px; overflow-y: auto; padding-right: 2px; }
+  .schedule-wrap::-webkit-scrollbar { width: 3px; }
+  .schedule-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .slot {
+    display: grid; grid-template-columns: 42px 1fr;
+    gap: 4px; align-items: start;
+    height: 40px; /* fixed — each slot = 30 min = 40px — keep in sync with JS SLOT_H */
+    box-sizing: border-box;
+  }
+  .slot-time {
+    font-size: 0.62rem; color: var(--muted); font-weight: 600;
+    text-align: right; padding-right: 6px; padding-top: 3px;
+    border-right: 2px solid var(--border); line-height: 1;
+    height: 40px; display: flex; align-items: flex-start; justify-content: flex-end;
+    box-sizing: border-box;
+  }
+  .slot-right { display: flex; flex-direction: column; min-width: 0; flex: 1; height: 40px; box-sizing: border-box; }
+  .slot-input {
+    border: none; border-bottom: 1px solid transparent;
+    background: transparent; font-size: 0.74rem;
+    font-family: inherit; color: var(--text);
+    padding: 3px 5px; outline: none; border-radius: 4px;
+    width: 100%; transition: all 0.12s; height: 40px; box-sizing: border-box;
+  }
+  .slot-input:hover { background: var(--bg); }
+  .slot-input:focus { background: var(--primary-light); border-bottom-color: var(--primary); }
+
+  /* ── Google Calendar-style event blocks ── */
+  .sched-events-layer {
+    position: absolute;
+    top: 0; left: 46px; right: 0;
+    pointer-events: none; /* layer is transparent to clicks */
+    z-index: 2;
+  }
+  .sched-event-block {
+    position: absolute;
+    left: 3px; right: 4px;
+    border-radius: 6px;
+    padding: 3px 7px;
+    overflow: hidden;
+    pointer-events: auto; /* individual blocks are clickable */
+    cursor: pointer;
+    display: flex; flex-direction: column; justify-content: flex-start;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    transition: filter 0.12s, box-shadow 0.12s;
+    border-left: 3px solid transparent;
+  }
+  .sched-event-block:hover { filter: brightness(0.93); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .sched-event-block.type-work {
+    background: #ede9ff; border-left-color: var(--primary); color: var(--primary);
+  }
+  .sched-event-block.type-personal {
+    background: #fdf2f8; border-left-color: #f472b6; color: #be185d;
+  }
+  .sched-event-block.type-none {
+    background: #f1f5f9; border-left-color: #94a3b8; color: #475569;
+    border: 1px solid #e2e8f0; border-left-width: 3px;
+  }
+  .sched-event-block.done { opacity: 0.45; }
+  .sev-title {
+    font-size: 0.71rem; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+  .sev-meta {
+    font-size: 0.6rem; opacity: 0.8;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    line-height: 1.3; margin-top: 1px;
+  }
+
+  .task-item {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 7px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--bg);
+    margin-bottom: 4px; transition: all 0.15s;
+    overflow: hidden; min-width: 0;
+  }
+  .task-item:has(input[type=checkbox]:checked) { opacity:0.6; background:#f0fdf4; border-color:var(--accent2); }
+  .task-item input[type=checkbox] { width:15px; height:15px; accent-color:var(--primary); cursor:pointer; flex-shrink:0; }
+  .task-text {
+    flex:1; min-width:0; border:none; background:transparent;
+    font-size:0.78rem; font-family:inherit; color:var(--text); outline:none;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .task-text::placeholder { color: var(--muted); }
+  .task-item:has(input[type=checkbox]:checked) .task-text { text-decoration:line-through; color:var(--muted); }
+  .task-del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:0.9rem; opacity:0; padding:1px 3px; transition:opacity 0.12s; flex-shrink:0; }
+  .task-item:hover .task-del { opacity:1; }
+  .add-btn {
+    display:flex; align-items:center; gap:4px;
+    padding:5px 9px; border:1px dashed var(--border);
+    border-radius:7px; background:transparent;
+    color:var(--muted); font-size:0.75rem; cursor:pointer;
+    font-family:inherit; transition:all 0.12s; width:100%; margin-top:2px;
+  }
+  .add-btn:hover { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
+
+  .habit-row { display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid var(--border); }
+  .habit-row:last-child { border-bottom:none; }
+  .habit-name {
+    flex:1; border:none; background:transparent;
+    font-size:0.78rem; font-family:inherit; color:var(--text); outline:none;
+  }
+  .habit-name::placeholder { color:var(--muted); }
+  .habit-check {
+    width:24px; height:24px; border-radius:6px;
+    border:2px solid var(--border); background:transparent;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:0.8rem; transition:all 0.12s; color:transparent; flex-shrink:0;
+  }
+  .habit-check.checked { background:var(--accent2); border-color:var(--accent2); color:#166534; }
+
+  .refl-label { font-size:0.62rem; font-weight:700; color:var(--muted); margin-bottom:3px; }
+  .refl-label.well { color:#7c6fcd; }
+  .refl-label.imp  { color:#f472b6; }
+  .refl-label.grat { color:#fb923c; }
+  .reflection-input {
+    width:100%; border:1px solid var(--border); border-radius:7px;
+    padding:6px 8px; font-size:0.75rem; font-family:inherit;
+    color:var(--text); background:var(--bg); resize:none; outline:none;
+    transition:border-color 0.15s; line-height:1.4; margin-bottom:6px;
+  }
+  .reflection-input:focus { border-color:var(--primary); background:white; }
+
+  .sec-divider { border:none; border-top:1px solid var(--border); margin:2px 0; }
+  .today-badge {
+    font-size:0.6rem; background:rgba(255,255,255,0.25);
+    padding:2px 6px; border-radius:99px; font-weight:600;
+  }
+
+  /* ── Ideas panel ── */
+  .ideas-fab {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 500;
+    background: linear-gradient(135deg,#f9a8d4,#c084fc);
+    color: white;
+    border: none;
+    border-radius: 99px;
+    padding: 10px 18px 10px 14px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 20px rgba(192,132,252,0.45);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .ideas-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(192,132,252,0.55); }
+  .ideas-fab .fab-count {
+    background: white;
+    color: #c084fc;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .ideas-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(45,43,61,0.25);
+    z-index: 600;
+    backdrop-filter: blur(2px);
+  }
+  .ideas-backdrop.open { display: block; }
+
+  .ideas-drawer {
+    position: fixed;
+    top: 0; right: 0;
+    height: 100vh;
+    width: 360px;
+    background: #fff;
+    border-left: 1px solid #e9d5ff;
+    z-index: 700;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: -8px 0 40px rgba(124,111,205,0.15);
+  }
+  .ideas-drawer.open { transform: translateX(0); }
+
+  .ideas-header {
+    padding: 16px 18px;
+    background: linear-gradient(135deg,#f9a8d4,#c084fc);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .ideas-header h2 { font-size: 1rem; font-weight: 800; display:flex; align-items:center; gap:8px; }
+  .ideas-header .idea-sub { font-size: 0.72rem; opacity: 0.85; margin-top: 1px; }
+  .ideas-close {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    width: 30px; height: 30px; border-radius: 50%;
+    font-size: 1.1rem; cursor: pointer; transition: background 0.15s;
+  }
+  .ideas-close:hover { background: rgba(255,255,255,0.35); }
+
+  .ideas-toolbar {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f3e8ff;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .ideas-search {
+    flex: 1;
+    border: 1px solid #e9d5ff;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-family: inherit;
+    outline: none;
+    color: var(--text);
+  }
+  .ideas-search:focus { border-color: #c084fc; }
+  .ideas-add-btn {
+    background: linear-gradient(135deg,#f9a8d4,#c084fc);
+    color: white; border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  .ideas-add-btn:hover { opacity: 0.85; }
+
+  .ideas-filter-row {
+    padding: 6px 14px 8px;
+    display: flex; gap: 5px; flex-wrap: wrap;
+    border-bottom: 1px solid #f3e8ff;
+  }
+  .filter-chip {
+    font-size: 0.68rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 99px;
+    border: 1px solid #e9d5ff;
+    background: transparent; color: #a855f7;
+    cursor: pointer; transition: all 0.12s; font-family: inherit;
+  }
+  .filter-chip.active { background: #c084fc; color: white; border-color: #c084fc; }
+
+  .ideas-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ideas-list::-webkit-scrollbar { width: 4px; }
+  .ideas-list::-webkit-scrollbar-thumb { background: #e9d5ff; border-radius: 2px; }
+
+  .idea-card {
+    border: 1px solid #e9d5ff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #fdf4ff;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: box-shadow 0.15s;
+  }
+  .idea-card:hover { box-shadow: 0 2px 10px rgba(192,132,252,0.18); }
+  .idea-card.starred { border-color: #f9a8d4; background: #fff0f9; }
+
+  .idea-card-top {
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .idea-title-input {
+    flex: 1;
+    border: none; background: transparent;
+    font-size: 0.87rem; font-weight: 700;
+    font-family: inherit; color: var(--text);
+    outline: none;
+  }
+  .idea-title-input::placeholder { color: #c4b5fd; font-weight: 400; }
+  .idea-star-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 1rem; transition: transform 0.15s; flex-shrink: 0;
+    color: #e9d5ff;
+  }
+  .idea-star-btn.on { color: #f9a8d4; }
+  .idea-star-btn:hover { transform: scale(1.2); }
+
+  .idea-notes-input {
+    width: 100%;
+    border: none; background: transparent;
+    font-size: 0.78rem; font-family: inherit; color: var(--muted);
+    outline: none; resize: none; line-height: 1.5;
+  }
+  .idea-notes-input::placeholder { color: #d8b4fe; }
+
+  .idea-card-footer {
+    display: flex; align-items: center; gap: 6px; margin-top: 2px;
+  }
+  .idea-tag-select {
+    border: 1px solid #e9d5ff; border-radius: 99px;
+    background: white; color: #a855f7;
+    font-size: 0.68rem; font-weight: 700; font-family: inherit;
+    padding: 2px 8px; outline: none; cursor: pointer;
+  }
+  .idea-date { font-size: 0.65rem; color: #c4b5fd; margin-left: auto; }
+  .idea-del-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 0.8rem; color: #e9d5ff; opacity: 0;
+    transition: opacity 0.12s, color 0.12s;
+  }
+  .idea-card:hover .idea-del-btn { opacity: 1; }
+  .idea-del-btn:hover { color: #f87171; }
+
+  .ideas-empty {
+    text-align: center; padding: 40px 20px;
+    color: #c4b5fd;
+  }
+  .ideas-empty .ei { font-size: 2.5rem; margin-bottom: 8px; }
+  .ideas-empty p  { font-size: 0.82rem; line-height: 1.6; }
+
+  /* ── Task detail modal ── */
+  .task-modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(45,43,61,0.35);
+    z-index: 800;
+    backdrop-filter: blur(3px);
+    align-items: center;
+    justify-content: center;
+  }
+  .task-modal-backdrop.open { display: flex; }
+
+  .task-modal {
+    background: white;
+    border-radius: 16px;
+    width: 480px;
+    max-width: calc(100vw - 40px);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(45,43,61,0.25);
+    display: flex;
+    flex-direction: column;
+    animation: modalIn 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes modalIn {
+    from { opacity:0; transform: scale(0.92) translateY(12px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+  .task-modal::-webkit-scrollbar { width: 4px; }
+  .task-modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .tm-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .tm-checkbox {
+    width: 20px; height: 20px; flex-shrink: 0;
+    accent-color: var(--primary); cursor: pointer; margin-top: 3px;
+  }
+  .tm-title-input {
+    flex: 1;
+    border: none; background: transparent;
+    font-size: 1rem; font-weight: 700;
+    font-family: inherit; color: var(--text);
+    outline: none; line-height: 1.4;
+  }
+  .tm-title-input::placeholder { color: var(--muted); font-weight: 400; }
+  .tm-close {
+    background: var(--bg); border: none;
+    width: 28px; height: 28px; border-radius: 50%;
+    font-size: 1rem; cursor: pointer; color: var(--muted);
+    flex-shrink: 0; transition: background 0.15s;
+  }
+  .tm-close:hover { background: var(--border); color: var(--text); }
+
+  .tm-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
+
+  .tm-field-label {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.7px; color: var(--muted); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* Notes */
+  .tm-notes {
+    width: 100%; border: 1px solid var(--border); border-radius: 10px;
+    padding: 9px 12px; font-size: 0.85rem; font-family: inherit;
+    color: var(--text); background: var(--bg); resize: none; outline: none;
+    line-height: 1.5; transition: border-color 0.15s;
+  }
+  .tm-notes:focus { border-color: var(--primary); background: white; }
+
+  /* Schedule row */
+  .tm-schedule-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .tm-date-input, .tm-time-input {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 10px; font-size: 0.82rem; font-family: inherit;
+    color: var(--text); background: var(--bg); outline: none;
+    transition: border-color 0.15s; cursor: pointer;
+  }
+  .tm-date-input:focus, .tm-time-input:focus { border-color: var(--primary); background: white; }
+  .tm-date-input { flex: 1; min-width: 130px; }
+  .tm-time-input { width: 110px; }
+  .tm-clear-btn {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 10px; font-size: 0.75rem; color: var(--muted);
+    cursor: pointer; font-family: inherit; transition: all 0.12s;
+  }
+  .tm-clear-btn:hover { border-color: #f87171; color: #f87171; }
+
+  .tm-select {
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text);
+    font-size: 0.82rem; font-family: inherit;
+    padding: 7px 10px; outline: none; cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .tm-select:focus { border-color: var(--primary); background: white; }
+
+  .tm-type-row { display: flex; gap: 8px; }
+  .tm-type-btn {
+    flex: 1; padding: 8px; border-radius: 8px;
+    border: 2px solid var(--border); background: var(--bg);
+    font-size: 0.82rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.15s; color: var(--muted);
+  }
+  .tm-type-btn:hover { border-color: var(--muted); }
+  .tm-type-btn.active-work     { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+  .tm-type-btn.active-personal { border-color: #f472b6; background: #fdf2f8; color: #be185d; }
+
+  .tm-schedule-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.7rem; font-weight: 600;
+    background: var(--primary-light); color: var(--primary);
+    border-radius: 99px; padding: 3px 8px; margin-top: 4px;
+  }
+
+  /* Resources */
+  .tm-resources { display: flex; flex-direction: column; gap: 6px; }
+  .tm-resource-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 10px;
+    border: 1px solid var(--border); border-radius: 9px;
+    background: var(--bg); transition: border-color 0.15s;
+  }
+  .tm-resource-item:focus-within { border-color: var(--primary); background: white; }
+  .tm-resource-favicon {
+    font-size: 0.9rem; flex-shrink: 0; width: 18px; text-align: center;
+  }
+  .tm-resource-label {
+    border: none; background: transparent;
+    font-size: 0.8rem; font-weight: 600; font-family: inherit;
+    color: var(--text); outline: none; width: 110px; flex-shrink: 0;
+  }
+  .tm-resource-label::placeholder { color: var(--muted); font-weight: 400; }
+  .tm-resource-url {
+    flex: 1; border: none; background: transparent;
+    font-size: 0.78rem; font-family: inherit;
+    color: var(--primary); outline: none;
+    text-overflow: ellipsis;
+  }
+  .tm-resource-url::placeholder { color: var(--muted); }
+  .tm-resource-open {
+    background: none; border: none; cursor: pointer;
+    font-size: 0.8rem; color: var(--muted); opacity: 0;
+    transition: opacity 0.12s; flex-shrink: 0;
+    text-decoration: none;
+  }
+  .tm-resource-item:hover .tm-resource-open { opacity: 1; }
+  .tm-resource-del {
+    background: none; border: none; cursor: pointer;
+    font-size: 0.8rem; color: var(--muted); opacity: 0;
+    transition: opacity 0.12s; flex-shrink: 0;
+  }
+  .tm-resource-item:hover .tm-resource-del { opacity: 1; }
+  .tm-resource-del:hover { color: #f87171; }
+
+  .tm-add-resource {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 10px; border: 1px dashed var(--border);
+    border-radius: 9px; background: transparent;
+    color: var(--muted); font-size: 0.78rem; cursor: pointer;
+    font-family: inherit; transition: all 0.12s;
+  }
+  .tm-add-resource:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+  .tm-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 8px;
+  }
+  .tm-save-btn {
+    background: var(--primary); color: white; border: none;
+    border-radius: 8px; padding: 8px 20px;
+    font-size: 0.85rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .tm-save-btn:hover { opacity: 0.85; }
+
+  /* Task card detail indicator */
+  .task-has-details {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary); flex-shrink: 0;
+  }
+  .task-scheduled-tag {
+    font-size: 0.62rem; font-weight: 600;
+    background: var(--primary-light); color: var(--primary);
+    border-radius: 4px; padding: 1px 5px;
+    display: inline-flex; align-items: center; gap: 3px;
+    flex-shrink: 0; max-width: 90px;
+    overflow: hidden; white-space: nowrap;
+  }
+  .task-scheduled-tag .tag-text {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .task-type-dot {
+    width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+    display: inline-block;
+  }
+  .task-type-dot.work     { background: var(--primary); }
+  .task-type-dot.personal { background: #f472b6; }
+  .task-resource-tag {
+    font-size: 0.62rem; font-weight: 600;
+    background: #fef3c7; color: #92400e;
+    border-radius: 4px; padding: 1px 5px; white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── Workout panel ── */
+  .wo-panel {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    background: #f0fdf4;
+    overflow: hidden;
+  }
+  .wo-panel.open { display: flex; }
+
+  .wo-panel-header {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .wo-panel-header h2 { font-size: 1.1rem; font-weight: 800; display:flex; align-items:center; gap:8px; }
+  .wo-panel-header .wo-sub { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+  .wo-back {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    padding: 7px 14px; border-radius: 8px; font-size: 0.82rem;
+    font-weight: 700; font-family: inherit; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .wo-back:hover { background: rgba(255,255,255,0.35); }
+
+  .wo-tabs {
+    display: flex; gap: 0;
+    background: white;
+    border-bottom: 2px solid #dcfce7;
+    flex-shrink: 0;
+  }
+  .wo-tab {
+    padding: 11px 24px; font-size: 0.85rem; font-weight: 700;
+    border: none; background: transparent; cursor: pointer;
+    color: #6b7280; font-family: inherit;
+    border-bottom: 3px solid transparent; margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .wo-tab:hover { color: #16a34a; }
+  .wo-tab.active { color: #16a34a; border-bottom-color: #16a34a; }
+
+  .wo-content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+  .wo-content::-webkit-scrollbar { width: 5px; }
+  .wo-content::-webkit-scrollbar-thumb { background: #bbf7d0; border-radius: 3px; }
+
+  /* Library */
+  .wo-lib-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .wo-card {
+    background: white; border: 1px solid #bbf7d0;
+    border-radius: 12px; padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    transition: box-shadow 0.15s;
+  }
+  .wo-card:hover { box-shadow: 0 4px 16px rgba(34,197,94,0.15); }
+  .wo-card-top { display: flex; align-items: flex-start; gap: 10px; }
+  .wo-type-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .wo-card-fields { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .wo-input {
+    border: 1px solid #dcfce7; border-radius: 7px;
+    padding: 5px 9px; font-size: 0.82rem; font-family: inherit;
+    color: #14532d; background: #f0fdf4; outline: none;
+    transition: border-color 0.15s; width: 100%;
+  }
+  .wo-input:focus { border-color: #22c55e; background: white; }
+  .wo-input.name  { font-weight: 700; font-size: 0.88rem; }
+  .wo-input.url   { color: #15803d; font-size: 0.75rem; }
+  .wo-card-row { display: flex; gap: 6px; }
+  .wo-select {
+    flex: 1; border: 1px solid #dcfce7; border-radius: 7px;
+    padding: 5px 8px; font-size: 0.78rem; font-family: inherit;
+    color: #14532d; background: #f0fdf4; outline: none; cursor: pointer;
+  }
+  .wo-select:focus { border-color: #22c55e; }
+  .wo-card-footer { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  .wo-open-btn {
+    font-size: 0.75rem; color: #16a34a; text-decoration: none;
+    background: #dcfce7; border-radius: 6px; padding: 3px 10px;
+    font-weight: 700; transition: background 0.12s;
+  }
+  .wo-open-btn:hover { background: #bbf7d0; }
+  .wo-del-btn {
+    background: none; border: 1px solid #fecaca; border-radius: 6px;
+    color: #f87171; font-size: 0.75rem; padding: 3px 8px;
+    cursor: pointer; font-family: inherit; transition: all 0.12s;
+  }
+  .wo-del-btn:hover { background: #fef2f2; }
+  .wo-add-card-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px; border: 2px dashed #86efac; border-radius: 12px;
+    background: transparent; color: #16a34a; font-size: 0.85rem;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: all 0.15s; width: 100%;
+  }
+  .wo-add-card-btn:hover { background: #dcfce7; border-color: #22c55e; }
+
+  /* Week plan tab */
+  .wo-week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    min-width: 900px;
+  }
+  .wo-day-col {
+    background: white; border: 1px solid #bbf7d0;
+    border-radius: 12px; overflow: hidden;
+  }
+  .wo-day-col.today { border: 2px solid #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.12); }
+  .wo-day-head {
+    background: #f0fdf4; padding: 8px 12px;
+    border-bottom: 1px solid #dcfce7;
+  }
+  .wo-day-head .wdh-name { font-size: 0.8rem; font-weight: 700; color: #15803d; }
+  .wo-day-head .wdh-date { font-size: 0.65rem; color: #6b7280; margin-top: 1px; }
+  .wo-day-col.today .wo-day-head { background: #dcfce7; }
+  .wo-day-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .wo-day-select {
+    width: 100%; border: 1px solid #dcfce7; border-radius: 7px;
+    padding: 6px 8px; font-size: 0.78rem; font-family: inherit;
+    color: #14532d; background: #f0fdf4; outline: none; cursor: pointer;
+  }
+  .wo-day-select:focus { border-color: #22c55e; }
+  .wo-day-preview {
+    border-radius: 8px; padding: 8px 10px;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .wo-day-preview .wdp-name { font-size: 0.8rem; font-weight: 700; color: #15803d; }
+  .wo-day-preview .wdp-meta { font-size: 0.68rem; color: #6b7280; }
+  .wo-day-preview .wdp-link {
+    font-size: 0.72rem; color: #16a34a; font-weight: 700;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 3px;
+    margin-top: 2px;
+  }
+  .wo-day-preview .wdp-link:hover { text-decoration: underline; }
+  .wo-notes-input {
+    width: 100%; border: 1px solid #dcfce7; border-radius: 7px;
+    padding: 5px 8px; font-size: 0.75rem; font-family: inherit;
+    color: #374151; background: #f0fdf4; outline: none; resize: none;
+  }
+  .wo-notes-input:focus { border-color: #22c55e; background: white; }
+
+  /* Day column workout card */
+  .day-workout-card {
+    display: flex; align-items: center; gap: 8px;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 8px; padding: 7px 10px;
+    text-decoration: none; transition: box-shadow 0.15s;
+  }
+  .day-workout-card:hover { box-shadow: 0 2px 8px rgba(34,197,94,0.2); border-color: #22c55e; }
+  .dwc-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .dwc-info { flex: 1; min-width: 0; }
+  .dwc-name { font-size: 0.78rem; font-weight: 700; color: #15803d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dwc-meta { font-size: 0.65rem; color: #6b7280; margin-top: 1px; }
+  .dwc-play {
+    background: #22c55e; color: white; border: none;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; flex-shrink: 0; text-decoration: none;
+    transition: background 0.12s;
+  }
+  .dwc-play:hover { background: #16a34a; }
+
+  /* Month plan tab */
+  .wo-month-nav {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    margin-bottom: 16px;
+  }
+  .wo-month-nav button {
+    background: #dcfce7; border: none; color: #15803d;
+    width: 32px; height: 32px; border-radius: 50%;
+    font-size: 1.1rem; cursor: pointer; font-weight: 700;
+    transition: background 0.15s;
+  }
+  .wo-month-nav button:hover { background: #bbf7d0; }
+  .wo-month-nav .wo-month-label { font-size: 1rem; font-weight: 800; color: #14532d; min-width: 160px; text-align:center; }
+
+  .wo-month-cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+  .wo-month-hdr {
+    text-align: center; font-size: 0.72rem; font-weight: 700;
+    color: #6b7280; text-transform: uppercase; padding: 4px 0;
+  }
+  .wo-month-hdr.weekend { color: #f472b6; }
+
+  .wo-mday {
+    background: white; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 6px 7px;
+    min-height: 72px; display: flex; flex-direction: column; gap: 4px;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .wo-mday:hover { border-color: #86efac; }
+  .wo-mday.empty { background: transparent; border-color: transparent; pointer-events: none; }
+  .wo-mday.other-month { opacity: 0.35; }
+  .wo-mday.wo-mday-today { border-color: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.15); }
+  .wo-mday.has-workout { border-color: #86efac; background: #f0fdf4; }
+
+  .wo-mday-num {
+    font-size: 0.72rem; font-weight: 700; color: #6b7280;
+  }
+  .wo-mday-today .wo-mday-num {
+    color: #16a34a; background: #dcfce7; border-radius: 4px;
+    padding: 1px 5px; display: inline-block;
+  }
+  .wo-mday-chip {
+    font-size: 0.7rem; font-weight: 600; color: #15803d;
+    background: #dcfce7; border-radius: 5px; padding: 2px 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    cursor: pointer; transition: background 0.12s;
+    flex: 1; display: flex; align-items: center; gap: 3px;
+  }
+  .wo-mday-chip:hover { background: #bbf7d0; }
+  .wo-mday-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wo-mday-add {
+    font-size: 0.68rem; color: #9ca3af; background: #f3f4f6;
+    border: 1px dashed #d1d5db; border-radius: 5px; padding: 2px 6px;
+    cursor: pointer; text-align: center; transition: all 0.12s;
+    flex: 1;
+  }
+  .wo-mday-add:hover { background: #dcfce7; border-color: #86efac; color: #16a34a; }
+
+  /* inline popover for day assignment */
+  .wo-mday-select-wrap { position: relative; flex: 1; }
+  .wo-mday-sel {
+    width: 100%; border: 1px solid #86efac; border-radius: 5px;
+    padding: 2px 4px; font-size: 0.68rem; font-family: inherit;
+    color: #14532d; background: #f0fdf4; cursor: pointer; outline: none;
+  }
+  .wo-mday-sel:focus { border-color: #22c55e; }
+
+  /* topbar workout toggle */
+  .wo-topbar-btn {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    color: white; border-radius: 8px; padding: 6px 14px;
+    font-size: 0.82rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .wo-topbar-btn:hover   { background: rgba(255,255,255,0.25); }
+  .wo-topbar-btn.wo-active { background: #22c55e; border-color: #22c55e; }
+</style>
+</head>
+<body>
+
+<!-- Task detail modal -->
+<div class="task-modal-backdrop" id="task-modal-backdrop" onclick="closeTaskModal(event)">
+  <div class="task-modal" id="task-modal" onclick="event.stopPropagation()">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- Ideas FAB -->
+<button class="ideas-fab" onclick="toggleIdeas()" id="ideas-fab">💡 Ideas <span class="fab-count" id="fab-count">0</span></button>
+
+<!-- Ideas backdrop -->
+<div class="ideas-backdrop" id="ideas-backdrop" onclick="toggleIdeas()"></div>
+
+<!-- Ideas drawer -->
+<div class="ideas-drawer" id="ideas-drawer">
+  <div class="ideas-header">
+    <div>
+      <h2>💡 Ideas</h2>
+      <div class="idea-sub">Capture thoughts to explore later</div>
+    </div>
+    <button class="ideas-close" onclick="toggleIdeas()">×</button>
+  </div>
+  <div class="ideas-toolbar">
+    <input class="ideas-search" id="ideas-search" placeholder="🔍 Search ideas…" oninput="renderIdeas()">
+    <button class="ideas-add-btn" onclick="addIdea()">＋ New idea</button>
+  </div>
+  <div class="ideas-filter-row">
+    <button class="filter-chip active" data-filter="all"     onclick="setFilter(this)">All</button>
+    <button class="filter-chip"        data-filter="starred" onclick="setFilter(this)">⭐ Starred</button>
+    <button class="filter-chip"        data-filter="explore" onclick="setFilter(this)">🔭 Explore</button>
+    <button class="filter-chip"        data-filter="wip"     onclick="setFilter(this)">🔧 In Progress</button>
+    <button class="filter-chip"        data-filter="done"    onclick="setFilter(this)">✅ Done</button>
+  </div>
+  <div class="ideas-list" id="ideas-list"></div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div>
+    <div class="topbar-title">📅 Weekly Planner</div>
+    <div class="topbar-sub">Plan with purpose · Stay focused · Reflect</div>
+  </div>
+  <div class="week-nav">
+    <button onclick="changeWeek(-1)">‹</button>
+    <div class="week-label" id="week-label"></div>
+    <button onclick="changeWeek(1)">›</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="topbar-stats">
+      <div class="tstat"><div class="tstat-val" id="st-total">0</div><div class="tstat-lbl">Tasks</div></div>
+      <div class="tstat"><div class="tstat-val" id="st-done">0</div><div class="tstat-lbl">Done</div></div>
+      <div class="tstat"><div class="tstat-val" id="st-habits">0</div><div class="tstat-lbl">Habits</div></div>
+      <div class="tstat"><div class="tstat-val" id="st-pct">0%</div><div class="tstat-lbl">Progress</div></div>
+    </div>
+    <button class="wo-topbar-btn" id="wo-toggle-btn" onclick="toggleWorkoutPanel()">💪 Workouts</button>
+  </div>
+</div>
+
+<div class="main-layout" id="main-layout">
+
+  <!-- ── Left sidebar ── -->
+  <div class="left-sidebar" id="left-sidebar">
+    <!-- rendered by JS -->
+  </div>
+
+  <!-- ── Week grid ── -->
+  <div class="week-scroll">
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+
+</div>
+
+<!-- ── Workout Panel ── -->
+<div class="wo-panel" id="wo-panel">
+  <div class="wo-panel-header">
+    <div>
+      <h2>💪 Workout Planner</h2>
+      <div class="wo-sub">Build your library · Schedule your week</div>
+    </div>
+    <button class="wo-back" onclick="toggleWorkoutPanel()">← Back to Planner</button>
+  </div>
+
+  <div class="wo-tabs">
+    <button class="wo-tab active" id="wo-tab-lib" onclick="switchWoTab('lib')">📚 Library</button>
+    <button class="wo-tab" id="wo-tab-week" onclick="switchWoTab('week')">📅 Week Plan</button>
+    <button class="wo-tab" id="wo-tab-month" onclick="switchWoTab('month')">📆 Month Plan</button>
+  </div>
+
+  <!-- Library tab -->
+  <div class="wo-content" id="wo-lib-content">
+    <div class="wo-lib-grid" id="wo-lib-grid"></div>
+    <button class="wo-add-card-btn" onclick="addWorkout()">+ Add Workout</button>
+  </div>
+
+  <!-- Week Plan tab -->
+  <div class="wo-content" id="wo-week-content" style="display:none; overflow-x:auto">
+    <div class="wo-week-grid" id="wo-week-grid"></div>
+  </div>
+
+  <!-- Month Plan tab -->
+  <div class="wo-content" id="wo-month-content" style="display:none">
+    <div class="wo-month-nav">
+      <button onclick="changeWoMonth(-1)">‹</button>
+      <div class="wo-month-label" id="wo-month-label"></div>
+      <button onclick="changeWoMonth(1)">›</button>
+    </div>
+    <div class="wo-month-cal" id="wo-month-cal"></div>
+  </div>
+</div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────────────────
+const HOURS = [];
+for (let h = 7; h <= 21; h++) {
+  HOURS.push(`${String(h).padStart(2,'0')}:00`);
+  if (h < 21) HOURS.push(`${String(h).padStart(2,'0')}:30`);
+}
+
+const DAY_NAMES  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAY_FULL   = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MONTHS     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_FULL= ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const HABITS_DEF = ['Exercise','Read','Meditate','Hydrate 2L','No screens 1h before bed'];
+const REFL = [
+  { key:'well',    label:'✨ What went well?' },
+  { key:'improve', label:'🔁 How to improve?' },
+  { key:'grateful',label:'🙏 Grateful for…' }
+];
+
+let weekOffset = 0;
+let calOffset  = 0; // month offset for mini calendar
+let data = {};
+
+// weekData: keyed by "YYYY-WW"
+let weekData = {};
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function fmt(d) { return d.toISOString().slice(0,10); }
+
+function getWeekDates(offset=0) {
+  const now = new Date(), day = now.getDay();
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - (day===0?6:day-1) + offset*7);
+  return Array.from({length:7},(_,i)=>{ const d=new Date(mon); d.setDate(mon.getDate()+i); return d; });
+}
+
+function weekKey(offset) {
+  const dates = getWeekDates(offset);
+  return fmt(dates[0]); // Monday date as key
+}
+
+function getWeek(offset) {
+  const k = weekKey(offset);
+  if (!weekData[k]) weekData[k] = {
+    focus: '',
+    quickLinks: [],
+    workTodos:  Array.from({length:10},()=>({text:'',done:false})),
+    personalTodos: Array.from({length:10},()=>({text:'',done:false}))
+  };
+  return weekData[k];
+}
+
+function getDay(ds) {
+  if (!data[ds]) data[ds] = {
+    intention: '',
+    priorities: [{text:'',done:false},{text:'',done:false},{text:'',done:false}],
+    schedule: {},
+    tasks: [],
+    habits: HABITS_DEF.map(h=>({name:h,done:false})),
+    reflection: {well:'',improve:'',grateful:''}
+  };
+  // backfill task detail fields for older saved tasks
+  data[ds].tasks.forEach(t => {
+    if (t.notes      === undefined) t.notes = '';
+    if (t.schedDate  === undefined) t.schedDate = '';
+    if (t.schedTime  === undefined) t.schedTime = '';
+    if (t.schedDur   === undefined) t.schedDur = '';
+    if (t.schedType  === undefined) t.schedType = '';
+    if (t.resources  === undefined) t.resources = [];
+  });
+  return data[ds];
+}
+
+function save() {
+  try {
+    localStorage.setItem('wp3_data', JSON.stringify(data));
+    localStorage.setItem('wp3_week', JSON.stringify(weekData));
+  } catch(e) {}
+}
+
+function load() {
+  try {
+    const d = localStorage.getItem('wp3_data');
+    if (d) data = JSON.parse(d);
+    const w = localStorage.getItem('wp3_week');
+    if (w) weekData = JSON.parse(w);
+  } catch(e) {}
+}
+
+function getWeekNumber(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+}
+
+// ── Mini Calendar ──────────────────────────────────────────────────────────
+function renderMiniCal() {
+  const today = new Date();
+  const ref = new Date(today.getFullYear(), today.getMonth() + calOffset, 1);
+  const year = ref.getFullYear(), month = ref.getMonth();
+
+  // Which dates are in the current week?
+  const weekDates = getWeekDates(weekOffset).map(d => fmt(d));
+
+  // First day of month (0=Sun..6=Sat), convert to Mon-based
+  let startDow = ref.getDay(); // 0=Sun
+  startDow = startDow === 0 ? 6 : startDow - 1; // Mon=0
+
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  let rows = '';
+  let dayCounter = 1;
+  let nextCounter = 1;
+  let prevCounter = daysInPrevMonth - startDow + 1;
+
+  // Calculate total cells needed
+  const totalCells = startDow + daysInMonth;
+  const totalRows = Math.ceil(totalCells / 7);
+
+  for (let row = 0; row < totalRows; row++) {
+    // Compute week number for Monday of this row
+    let rowDate;
+    if (row === 0 && startDow > 0) {
+      rowDate = new Date(year, month, 1 - startDow);
+    } else {
+      const firstMonday = 1 - startDow + row * 7;
+      rowDate = new Date(year, month, firstMonday);
+    }
+    const wn = getWeekNumber(rowDate);
+
+    rows += `<tr><td class="week-num">W${wn}</td>`;
+    for (let col = 0; col < 7; col++) {
+      let cellDate, otherMonth = false;
+      const cellIdx = row * 7 + col;
+      if (cellIdx < startDow) {
+        cellDate = new Date(year, month-1, prevCounter++);
+        otherMonth = true;
+      } else if (dayCounter > daysInMonth) {
+        cellDate = new Date(year, month+1, nextCounter++);
+        otherMonth = true;
+      } else {
+        cellDate = new Date(year, month, dayCounter++);
+      }
+      const ds = fmt(cellDate);
+      const isToday = ds === fmt(today);
+      const inWeek  = weekDates.includes(ds);
+      let cls = '';
+      if (otherMonth) cls += ' other-month';
+      if (isToday)    cls += ' today-cell';
+      if (inWeek)     cls += ' in-week';
+      rows += `<td class="${cls.trim()}" onclick="jumpToWeekOf('${ds}')">${cellDate.getDate()}</td>`;
+    }
+    rows += '</tr>';
+  }
+
+  return `
+    <div class="cal-nav">
+      <button onclick="calOffset--;renderSidebar()">‹</button>
+      <span>${MONTHS_FULL[month]} ${year}</span>
+      <button onclick="calOffset++;renderSidebar()">›</button>
+    </div>
+    <table class="mini-cal">
+      <thead><tr>
+        <th class="star-col">★</th>
+        <th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function jumpToWeekOf(ds) {
+  const clicked = new Date(ds + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const now = new Date();
+  const currDay = now.getDay();
+  const currMon = new Date(now);
+  currMon.setDate(now.getDate() - (currDay===0?6:currDay-1));
+  currMon.setHours(0,0,0,0);
+
+  // Find Monday of clicked week
+  const cday = clicked.getDay();
+  const cmon = new Date(clicked);
+  cmon.setDate(clicked.getDate() - (cday===0?6:cday-1));
+
+  const diffMs = cmon - currMon;
+  weekOffset = Math.round(diffMs / (7*24*60*60*1000));
+  renderWeek();
+  renderSidebar();
+}
+
+// ── Sidebar render ─────────────────────────────────────────────────────────
+function renderSidebar() {
+  const wk = getWeek(weekOffset);
+  const dates = getWeekDates(weekOffset);
+  const wn = getWeekNumber(dates[0]);
+
+  const sb = document.getElementById('left-sidebar');
+  sb.innerHTML = `
+
+    <!-- Mini calendar -->
+    <div class="sb-section">
+      <div class="sb-section-title">Week ${wn}</div>
+      ${renderMiniCal()}
+    </div>
+
+    <!-- Main Focus -->
+    <div class="sb-section">
+      <div class="sb-section-title">Main Focus this week</div>
+      <textarea class="focus-textarea" rows="4"
+        placeholder="Write your main focus or intention for the week…"
+        oninput="setFocus(this)">${esc(wk.focus)}</textarea>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="sb-section">
+      <div class="sb-section-title">🔗 Quick Links</div>
+      <div class="ql-list" id="ql-list">
+        ${(wk.quickLinks||[]).map((l,li) => {
+          const icon = qlIcon(l.url);
+          return `<div class="ql-item">
+            <div class="ql-favicon">${icon}</div>
+            <div class="ql-info">
+              <input class="ql-label" value="${esc(l.label)}" placeholder="Label…"
+                data-li="${li}" oninput="setQlLabel(this)">
+              <input class="ql-url" value="${esc(l.url)}" placeholder="https://…"
+                data-li="${li}" oninput="setQlUrl(this)">
+            </div>
+            ${l.url ? `<a class="ql-open" href="${esc(l.url)}" target="_blank" rel="noopener" title="Open">↗</a>` : '<span class="ql-open"></span>'}
+            <button class="ql-del" onclick="delQl(${li})" title="Remove">×</button>
+          </div>`;
+        }).join('')}
+      </div>
+      <button class="add-sb-btn" onclick="addQl()">＋ Add link</button>
+    </div>
+
+    <!-- Work To Do's -->
+    <div class="sb-section">
+      <div class="sb-section-title">Work Weekly To Do's</div>
+      <div class="weekly-todo-list" id="work-todos">
+        ${wk.workTodos.map((t,ti)=>`
+        <div class="wtodo-item">
+          <input type="checkbox" ${t.done?'checked':''} data-type="work" data-ti="${ti}" onchange="toggleWeekTodo(this)">
+          <input class="wtodo-text" value="${esc(t.text)}"
+            placeholder="Task…" data-type="work" data-ti="${ti}" oninput="setWeekTodo(this)">
+        </div>`).join('')}
+      </div>
+      <button class="add-sb-btn" onclick="addWeekTodo('work')">＋ Add task</button>
+    </div>
+
+    <!-- Personal To Do's -->
+    <div class="sb-section">
+      <div class="sb-section-title">Personal Weekly To Do's</div>
+      <div class="weekly-todo-list" id="personal-todos">
+        ${wk.personalTodos.map((t,ti)=>`
+        <div class="wtodo-item">
+          <input type="checkbox" ${t.done?'checked':''} data-type="personal" data-ti="${ti}" onchange="toggleWeekTodo(this)">
+          <input class="wtodo-text" value="${esc(t.text)}"
+            placeholder="Task…" data-type="personal" data-ti="${ti}" oninput="setWeekTodo(this)">
+        </div>`).join('')}
+      </div>
+      <button class="add-sb-btn" onclick="addWeekTodo('personal')">＋ Add task</button>
+    </div>
+
+  `;
+}
+
+// ── Sidebar handlers ───────────────────────────────────────────────────────
+function setFocus(el)  { getWeek(weekOffset).focus = el.value; save(); }
+
+function qlIcon(url) {
+  if (!url) return '🔗';
+  try {
+    const h = new URL(url.startsWith('http') ? url : 'https://'+url).hostname;
+    if (h.includes('google'))    return '🔵';
+    if (h.includes('notion'))    return '⬛';
+    if (h.includes('github'))    return '🐙';
+    if (h.includes('figma'))     return '🎨';
+    if (h.includes('slack'))     return '💬';
+    if (h.includes('youtube'))   return '▶️';
+    if (h.includes('spotify'))   return '🎵';
+    if (h.includes('linear'))    return '🔷';
+    if (h.includes('jira'))      return '🟦';
+    if (h.includes('confluence') || h.includes('atlassian')) return '🟦';
+    if (h.includes('docs.google') || h.includes('drive')) return '📄';
+  } catch(e) {}
+  return '🔗';
+}
+function setQlLabel(el) {
+  const wk = getWeek(weekOffset);
+  if (!wk.quickLinks[+el.dataset.li]) return;
+  wk.quickLinks[+el.dataset.li].label = el.value; save();
+}
+function setQlUrl(el) {
+  const wk = getWeek(weekOffset);
+  if (!wk.quickLinks[+el.dataset.li]) return;
+  wk.quickLinks[+el.dataset.li].url = el.value; save();
+  // refresh icon + open link after URL change
+  renderSidebar();
+}
+function delQl(li) {
+  getWeek(weekOffset).quickLinks.splice(li, 1);
+  save(); renderSidebar();
+}
+function addQl() {
+  if (!getWeek(weekOffset).quickLinks) getWeek(weekOffset).quickLinks = [];
+  getWeek(weekOffset).quickLinks.push({label:'',url:''});
+  save(); renderSidebar();
+  setTimeout(()=>{
+    const labels = document.querySelectorAll('.ql-label');
+    if (labels.length) labels[labels.length-1].focus();
+  }, 40);
+}
+
+function setWeekTodo(el) {
+  const list = el.dataset.type==='work' ? 'workTodos' : 'personalTodos';
+  getWeek(weekOffset)[list][+el.dataset.ti].text = el.value; save();
+}
+function toggleWeekTodo(el) {
+  const list = el.dataset.type==='work' ? 'workTodos' : 'personalTodos';
+  getWeek(weekOffset)[list][+el.dataset.ti].done = el.checked; save();
+}
+function addWeekTodo(type) {
+  const list = type==='work' ? 'workTodos' : 'personalTodos';
+  getWeek(weekOffset)[list].push({text:'',done:false});
+  save(); renderSidebar();
+  setTimeout(()=>{
+    const id = type==='work' ? 'work-todos' : 'personal-todos';
+    const inputs = document.querySelectorAll(`#${id} .wtodo-text`);
+    if (inputs.length) inputs[inputs.length-1].focus();
+  }, 40);
+}
+
+// ── Day grid ───────────────────────────────────────────────────────────────
+function renderWeek() {
+  const dates = getWeekDates(weekOffset);
+  const today = fmt(new Date());
+  const wn = getWeekNumber(dates[0]);
+
+  const s=dates[0], e=dates[6];
+  document.getElementById('week-label').textContent =
+    `${DAY_NAMES[0]} ${s.getDate()} ${MONTHS[s.getMonth()]} – ${DAY_NAMES[6]} ${e.getDate()} ${MONTHS[e.getMonth()]} ${e.getFullYear()}`;
+
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+
+  dates.forEach((d,i) => {
+    const ds = fmt(d);
+    const isToday = ds === today;
+    const day = getDay(ds);
+
+    const total = 3 + day.tasks.length;
+    const done  = day.priorities.filter(p=>p.done).length + day.tasks.filter(t=>t.done).length;
+    const pct   = total>0 ? Math.round(done/total*100) : 0;
+    const C = 2*Math.PI*16;
+    const off = C - (pct/100)*C;
+
+    const col = document.createElement('div');
+    col.className = 'day-col' + (isToday?' today':'') + (i===5?' sat':'') + (i===6?' sun':'');
+    col.id = `col-${ds}`;
+
+    col.innerHTML = `
+      <div class="day-header">
+        <div>
+          <div class="day-name-big">${DAY_FULL[i]}${isToday?' <span class="today-badge">Today</span>':''}</div>
+          <div class="day-date-small">${d.getDate()} ${MONTHS[d.getMonth()]}</div>
+        </div>
+        <div class="mini-ring">
+          <svg width="38" height="38" viewBox="0 0 38 38">
+            <circle class="ring-bg" cx="19" cy="19" r="16"/>
+            <circle class="ring-fill" cx="19" cy="19" r="16"
+              stroke-dasharray="${C}" stroke-dashoffset="${off}" id="ring-${ds}"/>
+          </svg>
+          <div class="ring-lbl" id="rpct-${ds}">${pct}%</div>
+        </div>
+      </div>
+      <div class="day-body">
+        <div>
+          <div class="sec-label">💡 Intention</div>
+          <textarea class="intention-input" rows="2" placeholder="Today I will focus on…"
+            data-ds="${ds}" oninput="setIntention(this)">${esc(day.intention)}</textarea>
+        </div>
+        <div>
+          <div class="sec-label">🎯 Top 3 Priorities</div>
+          ${day.priorities.map((p,pi)=>`
+          <div class="pri-item">
+            <div class="pri-num">${pi+1}</div>
+            <input class="pri-text" value="${esc(p.text)}" placeholder="Priority ${pi+1}…"
+              data-ds="${ds}" data-pi="${pi}" oninput="setPriority(this)">
+            <input type="checkbox" ${p.done?'checked':''} data-ds="${ds}" data-pi="${pi}" onchange="togglePri(this)">
+          </div>`).join('')}
+        </div>
+        <hr class="sec-divider">
+        <div>
+          <div class="sec-label">⏰ Schedule</div>
+          <div class="schedule-wrap" id="sched-wrap-${ds}">
+            ${renderScheduleSlots(ds)}
+          </div>
+        </div>
+        <hr class="sec-divider">
+        <div>
+          <div class="sec-label">✅ Tasks</div>
+          <div id="tasks-${ds}">
+            ${day.tasks.map((t,ti)=>taskHtml(ds,t,ti)).join('')}
+          </div>
+          <button class="add-btn" onclick="addTask('${ds}')">＋ Add task</button>
+        </div>
+        <hr class="sec-divider">
+        <div>
+          <div class="sec-label">🔥 Habits</div>
+          ${day.habits.map((h,hi)=>`
+          <div class="habit-row">
+            <input class="habit-name" value="${esc(h.name)}" placeholder="Habit…"
+              data-ds="${ds}" data-hi="${hi}" oninput="setHabitName(this)">
+            <div class="habit-check ${h.done?'checked':''}" data-ds="${ds}" data-hi="${hi}"
+              onclick="toggleHabit(this)">✓</div>
+          </div>`).join('')}
+        </div>
+        <hr class="sec-divider">
+        <div>
+          <div class="sec-label">🌙 Reflection</div>
+          ${REFL.map(r=>`
+          <div class="refl-label ${r.key==='well'?'well':r.key==='improve'?'imp':'grat'}">${r.label}</div>
+          <textarea class="reflection-input" rows="2" placeholder="…"
+            data-ds="${ds}" data-key="${r.key}"
+            oninput="setReflection(this)">${esc(day.reflection[r.key]||'')}</textarea>`).join('')}
+        </div>
+        ${dayWorkoutCardHtml(ds)}
+      </div>`;
+
+    grid.appendChild(col);
+  });
+
+  renderSidebar();
+  updateStats();
+}
+
+function taskHtml(ds,t,ti) {
+  const hasNotes  = t.notes && t.notes.trim();
+  const hasSched  = t.schedDate;
+  const hasRes    = t.resources && t.resources.length > 0;
+  // Tag shows time + duration only (date is implicit — we're on that day's column)
+  const timeTag  = hasSched && t.schedTime ? t.schedTime + (t.schedDur ? ' · ' + t.schedDur : '') : '';
+  const typeDot  = t.schedType ? `<span class="task-type-dot ${t.schedType}"></span>` : '';
+  return `<div class="task-item" ondblclick="openTaskModal('${ds}',${ti})" title="Double-click for details">
+    <input type="checkbox" ${t.done?'checked':''} data-ds="${ds}" data-ti="${ti}"
+      onchange="toggleTask(this)" onclick="event.stopPropagation()">
+    <input class="task-text" value="${esc(t.text)}" placeholder="Add task…"
+      data-ds="${ds}" data-ti="${ti}" oninput="setTask(this)"
+      ondblclick="event.stopPropagation();openTaskModal('${ds}',${ti})">
+    ${timeTag   ? `<span class="task-scheduled-tag">${typeDot}<span class="tag-text">${timeTag}</span></span>` : ''}
+    ${hasNotes  ? `<div class="task-has-details" title="Has notes"></div>` : ''}
+    <button class="task-del" onclick="event.stopPropagation();delTask('${ds}',${ti})" title="Remove">×</button>
+  </div>`;
+}
+
+function fmtSchedLabel(date, time) {
+  if (!date) return '';
+  const d = new Date(date + 'T00:00:00');
+  const label = d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  return time ? `${label} ${time}` : label;
+}
+
+// ── Schedule slot rendering ────────────────────────────────────────────────
+const SLOT_H = 40;           // px per 30-min slot — must match CSS .slot { height: 40px }
+const SCHED_START = 7 * 60;  // 07:00 in minutes
+
+function durToMins(dur) {
+  return { '15m':15, '30m':30, '45m':45, '1h':60, '1.5h':90, '2h':120, '3h':180 }[dur] || 0;
+}
+
+function timeToTop(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  const offset = h * 60 + m - SCHED_START;
+  return Math.max(0, (offset / 30) * SLOT_H);
+}
+
+function addMins(timeStr, mins) {
+  const [h, m] = timeStr.split(':').map(Number);
+  const total = h * 60 + m + mins;
+  return `${String(Math.floor(total / 60) % 24).padStart(2,'0')}:${String(total % 60).padStart(2,'0')}`;
+}
+
+function renderScheduleSlots(ds) {
+  const day = getDay(ds);
+
+  // Time-slot grid (background)
+  const slotsHtml = HOURS.map(h => `
+    <div class="slot">
+      <div class="slot-time">${h}</div>
+      <div class="slot-right">
+        <input class="slot-input" placeholder="—" data-ds="${ds}" data-h="${h}"
+          value="${esc(day.schedule[h]||'')}" oninput="setSlot(this)">
+      </div>
+    </div>`).join('');
+
+  // Event blocks — absolutely positioned, spanning by duration
+  const eventBlocks = day.tasks
+    .map((t, ti) => ({ t, ti }))
+    .filter(({ t }) => t.schedDate === ds && t.schedTime)
+    .map(({ t, ti }) => {
+      const typeClass = t.schedType === 'work' ? 'type-work'
+                      : t.schedType === 'personal' ? 'type-personal' : 'type-none';
+      const typeIcon  = t.schedType === 'work' ? '💼' : t.schedType === 'personal' ? '🏠' : '📌';
+      const mins      = durToMins(t.schedDur) || 30; // default 30 min if no duration
+      const top       = timeToTop(t.schedTime);
+      const height    = Math.max(24, (mins / 30) * SLOT_H - 1); // -1px gap between adjacent blocks
+      const endTime   = addMins(t.schedTime, mins);
+      const timeLabel = `${t.schedTime} – ${endTime}`;
+      const showMeta  = height >= 44;
+      return `<div class="sched-event-block ${typeClass} ${t.done ? 'done' : ''}"
+          style="top:${top}px; height:${height}px"
+          onclick="openTaskModal('${ds}',${ti})"
+          title="${esc(t.text||'')} · ${timeLabel}">
+        <div class="sev-title">${typeIcon} ${esc(t.text || '(untitled)')}</div>
+        ${showMeta ? `<div class="sev-meta">${timeLabel}${t.schedDur ? ' · ' + t.schedDur : ''}</div>` : ''}
+      </div>`;
+    }).join('');
+
+  return `<div style="position:relative">
+    ${slotsHtml}
+    <div class="sched-events-layer">${eventBlocks}</div>
+  </div>`;
+}
+
+function refreshDaySchedule(ds) {
+  const wrap = document.getElementById(`sched-wrap-${ds}`);
+  if (wrap) wrap.innerHTML = renderScheduleSlots(ds);
+}
+
+// ── Day handlers ───────────────────────────────────────────────────────────
+function setIntention(el)  { getDay(el.dataset.ds).intention = el.value; save(); }
+function setPriority(el)   { getDay(el.dataset.ds).priorities[+el.dataset.pi].text = el.value; save(); }
+function togglePri(el)     { getDay(el.dataset.ds).priorities[+el.dataset.pi].done = el.checked; save(); updateRing(el.dataset.ds); updateStats(); }
+function setSlot(el)       { getDay(el.dataset.ds).schedule[el.dataset.h] = el.value; save(); }
+function setTask(el)       { getDay(el.dataset.ds).tasks[+el.dataset.ti].text = el.value; save(); }
+function setHabitName(el)  { getDay(el.dataset.ds).habits[+el.dataset.hi].name = el.value; save(); }
+function setReflection(el) { getDay(el.dataset.ds).reflection[el.dataset.key] = el.value; save(); }
+
+function toggleTask(el) {
+  getDay(el.dataset.ds).tasks[+el.dataset.ti].done = el.checked;
+  save(); updateRing(el.dataset.ds); updateStats();
+}
+function addTask(ds) {
+  getDay(ds).tasks.push({text:'',done:false,notes:'',schedDate:'',schedTime:'',schedDur:'',schedType:'',resources:[]});
+  save(); rerenderTasks(ds); updateRing(ds); updateStats();
+  setTimeout(()=>{ const ins=document.querySelectorAll(`#tasks-${ds} .task-text`); if(ins.length) ins[ins.length-1].focus(); },40);
+}
+function delTask(ds,ti) {
+  getDay(ds).tasks.splice(ti,1);
+  save(); rerenderTasks(ds); updateRing(ds); updateStats();
+}
+function rerenderTasks(ds) {
+  const c=document.getElementById(`tasks-${ds}`);
+  if(!c) return;
+  c.innerHTML = getDay(ds).tasks.map((t,ti)=>taskHtml(ds,t,ti)).join('');
+}
+function toggleHabit(el) {
+  const {ds,hi}=el.dataset, h=getDay(ds).habits[+hi];
+  h.done=!h.done; el.classList.toggle('checked',h.done);
+  save(); updateStats();
+}
+
+// ── Ring + Stats ───────────────────────────────────────────────────────────
+function updateRing(ds) {
+  const day=getDay(ds), total=3+day.tasks.length;
+  const done=day.priorities.filter(p=>p.done).length+day.tasks.filter(t=>t.done).length;
+  const pct=total>0?Math.round(done/total*100):0;
+  const C=2*Math.PI*16, off=C-(pct/100)*C;
+  const r=document.getElementById(`ring-${ds}`);
+  const l=document.getElementById(`rpct-${ds}`);
+  if(r) r.setAttribute('stroke-dashoffset',off);
+  if(l) l.textContent=`${pct}%`;
+}
+
+function updateStats() {
+  const dates=getWeekDates(weekOffset);
+  let tot=0,done=0,hab=0;
+  dates.forEach(d=>{ const day=getDay(fmt(d)); tot+=day.tasks.length; done+=day.tasks.filter(t=>t.done).length; hab+=day.habits.filter(h=>h.done).length; });
+  document.getElementById('st-total').textContent=tot;
+  document.getElementById('st-done').textContent=done;
+  document.getElementById('st-habits').textContent=hab;
+  const pct=tot>0?Math.round(done/tot*100):0;
+  document.getElementById('st-pct').textContent=`${pct}%`;
+}
+
+function changeWeek(dir) { weekOffset+=dir; renderWeek(); }
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Task detail modal ─────────────────────────────────────────────────────
+let _modalDs = null, _modalTi = null;
+
+function openTaskModal(ds, ti) {
+  _modalDs = ds; _modalTi = ti;
+  const t = getDay(ds).tasks[ti];
+  if (!t) return;
+
+  const modal = document.getElementById('task-modal');
+  modal.innerHTML = `
+    <div class="tm-header">
+      <input type="checkbox" class="tm-checkbox" ${t.done?'checked':''} id="tm-done">
+      <input class="tm-title-input" id="tm-title" value="${esc(t.text)}" placeholder="Task name…">
+      <button class="tm-close" onclick="closeTaskModal()">×</button>
+    </div>
+    <div class="tm-body">
+
+      <div>
+        <div class="tm-field-label">📝 Notes</div>
+        <textarea class="tm-notes" id="tm-notes" rows="3"
+          placeholder="Add details, context, links in text…">${esc(t.notes||'')}</textarea>
+      </div>
+
+      <div>
+        <div class="tm-field-label">📅 Schedule</div>
+        <div class="tm-schedule-row">
+          <input type="date" class="tm-date-input" id="tm-date" value="${esc(t.schedDate || ds)}">
+          <input type="time" class="tm-time-input" id="tm-time" value="${esc(t.schedTime||'')}">
+          <button class="tm-clear-btn" onclick="clearSchedule()">Clear</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+          <select class="tm-select" id="tm-dur" style="flex:1;min-width:130px">
+            <option value="">⏱ Duration</option>
+            <option value="15m"  ${t.schedDur==='15m' ?'selected':''}>15 min</option>
+            <option value="30m"  ${t.schedDur==='30m' ?'selected':''}>30 min</option>
+            <option value="45m"  ${t.schedDur==='45m' ?'selected':''}>45 min</option>
+            <option value="1h"   ${t.schedDur==='1h'  ?'selected':''}>1 hour</option>
+            <option value="1.5h" ${t.schedDur==='1.5h'?'selected':''}>1.5 hours</option>
+            <option value="2h"   ${t.schedDur==='2h'  ?'selected':''}>2 hours</option>
+            <option value="3h"   ${t.schedDur==='3h'  ?'selected':''}>3 hours</option>
+          </select>
+        </div>
+        <div class="tm-type-row" style="margin-top:8px">
+          <button class="tm-type-btn ${t.schedType==='work'    ?'active-work':''}"
+            id="type-work"     onclick="setSchedType('work')">💼 Work</button>
+          <button class="tm-type-btn ${t.schedType==='personal'?'active-personal':''}"
+            id="type-personal" onclick="setSchedType('personal')">🏠 Personal</button>
+        </div>
+        <div id="tm-sched-preview" style="margin-top:6px"></div>
+      </div>
+
+      <div>
+        <div class="tm-field-label">🔗 Resources</div>
+        <div id="tm-resources">
+          ${(t.resources||[]).map((r,ri)=>resourceRowHtml(ri,r)).join('')}
+        </div>
+        <button class="tm-add-resource" onclick="addResource()">＋ Add link / URL</button>
+      </div>
+
+    </div>
+    <div class="tm-footer">
+      <button class="tm-save-btn" onclick="saveTaskModal()">Save</button>
+    </div>`;
+
+  // wire checkbox live
+  document.getElementById('tm-done').addEventListener('change', e => {
+    getDay(_modalDs).tasks[_modalTi].done = e.target.checked;
+    save(); rerenderTasks(_modalDs); updateRing(_modalDs); updateStats();
+  });
+  // wire date/time/dur preview
+  ['tm-date','tm-time','tm-dur'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updateSchedPreview);
+    document.getElementById(id)?.addEventListener('change', updateSchedPreview);
+  });
+  updateSchedPreview();
+
+  document.getElementById('task-modal-backdrop').classList.add('open');
+  setTimeout(() => document.getElementById('tm-title')?.focus(), 80);
+}
+
+function updateSchedPreview() {
+  const d   = document.getElementById('tm-date')?.value;
+  const t   = document.getElementById('tm-time')?.value;
+  const dur = document.getElementById('tm-dur')?.value;
+  const el  = document.getElementById('tm-sched-preview');
+  if (!el) return;
+  if (d) {
+    const durLabel = dur ? ` · ${dur}` : '';
+    el.innerHTML = `<div class="tm-schedule-badge">📅 ${fmtSchedLabel(d,t)}${durLabel}</div>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+function setSchedType(type) {
+  // toggle off if already selected
+  const t = getDay(_modalDs)?.tasks[_modalTi];
+  const current = t?.schedType || '';
+  const next = current === type ? '' : type;
+  if (t) { t.schedType = next; save(); }
+  document.getElementById('type-work')    ?.classList.toggle('active-work',     next === 'work');
+  document.getElementById('type-personal')?.classList.toggle('active-personal', next === 'personal');
+}
+
+function clearSchedule() {
+  const di = document.getElementById('tm-date');
+  const ti = document.getElementById('tm-time');
+  const du = document.getElementById('tm-dur');
+  if (di) di.value = '';
+  if (ti) ti.value = '';
+  if (du) du.value = '';
+  setSchedType(''); // clear type buttons too (pass empty to reset)
+  document.getElementById('type-work')    ?.classList.remove('active-work');
+  document.getElementById('type-personal')?.classList.remove('active-personal');
+  updateSchedPreview();
+}
+
+function resourceRowHtml(ri, r) {
+  const icon = r.url ? '🔗' : '📎';
+  return `<div class="tm-resource-item" id="res-${ri}">
+    <span class="tm-resource-favicon">${icon}</span>
+    <input class="tm-resource-label" value="${esc(r.label||'')}" placeholder="Label…"
+      data-ri="${ri}" oninput="updateResLabel(this)">
+    <input class="tm-resource-url" value="${esc(r.url||'')}" placeholder="https://…"
+      data-ri="${ri}" oninput="updateResUrl(this)" onblur="refreshResIcon(${ri})">
+    ${r.url ? `<a class="tm-resource-open" href="${esc(r.url)}" target="_blank" rel="noopener" title="Open">↗</a>` : '<span class="tm-resource-open"></span>'}
+    <button class="tm-resource-del" onclick="removeResource(${ri})" title="Remove">×</button>
+  </div>`;
+}
+
+function addResource() {
+  const t = getDay(_modalDs).tasks[_modalTi];
+  if (!t.resources) t.resources = [];
+  t.resources.push({label:'',url:''});
+  save();
+  const container = document.getElementById('tm-resources');
+  if (container) {
+    container.innerHTML = t.resources.map((r,ri)=>resourceRowHtml(ri,r)).join('');
+  }
+  setTimeout(()=>{
+    const labels = document.querySelectorAll('.tm-resource-label');
+    if (labels.length) labels[labels.length-1].focus();
+  },40);
+}
+
+function removeResource(ri) {
+  const t = getDay(_modalDs).tasks[_modalTi];
+  t.resources.splice(ri,1); save();
+  document.getElementById('tm-resources').innerHTML =
+    t.resources.map((r,ri)=>resourceRowHtml(ri,r)).join('');
+  rerenderTasks(_modalDs);
+}
+
+function updateResLabel(el) {
+  const t = getDay(_modalDs).tasks[_modalTi];
+  if (t.resources[+el.dataset.ri]) t.resources[+el.dataset.ri].label = el.value;
+  save();
+}
+
+function updateResUrl(el) {
+  const t = getDay(_modalDs).tasks[_modalTi];
+  if (t.resources[+el.dataset.ri]) t.resources[+el.dataset.ri].url = el.value;
+  save();
+}
+
+function refreshResIcon(ri) {
+  const t = getDay(_modalDs).tasks[_modalTi];
+  const r = t.resources[ri];
+  if (!r) return;
+  const row = document.getElementById(`res-${ri}`);
+  if (!row) return;
+  const icon = row.querySelector('.tm-resource-favicon');
+  if (icon) icon.textContent = r.url ? '🔗' : '📎';
+  // update open link
+  const openEl = row.querySelector('.tm-resource-open');
+  if (openEl) {
+    if (r.url) {
+      openEl.outerHTML = `<a class="tm-resource-open" href="${esc(r.url)}" target="_blank" rel="noopener" title="Open">↗</a>`;
+    }
+  }
+}
+
+function flushModalToTask() {
+  if (_modalDs === null || _modalTi === null) return null;
+  const t = getDay(_modalDs).tasks[_modalTi];
+  if (!t) return null;
+  const prev = t.schedDate;
+  t.text      = document.getElementById('tm-title')?.value ?? t.text;
+  t.notes     = document.getElementById('tm-notes')?.value ?? '';
+  t.schedDate = document.getElementById('tm-date')?.value  ?? '';
+  t.schedTime = document.getElementById('tm-time')?.value  ?? '';
+  t.schedDur  = document.getElementById('tm-dur')?.value   ?? '';
+  // schedType is written immediately by setSchedType clicks, no need to re-read
+  save();
+  rerenderTasks(_modalDs);
+  const daysToRefresh = new Set([_modalDs, prev, t.schedDate].filter(Boolean));
+  daysToRefresh.forEach(refreshDaySchedule);
+  return t;
+}
+
+function saveTaskModal() {
+  flushModalToTask();
+  closeTaskModal();
+}
+
+function closeTaskModal(e) {
+  if (e && e.target !== document.getElementById('task-modal-backdrop')) return;
+  flushModalToTask(); // auto-save
+  document.getElementById('task-modal-backdrop').classList.remove('open');
+  _modalDs = null; _modalTi = null;
+}
+
+// close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeTaskModal({target: document.getElementById('task-modal-backdrop')});
+});
+
+// ── Ideas ──────────────────────────────────────────────────────────────────
+let ideas = [];
+let ideasOpen = false;
+let ideasFilter = 'all';
+
+const TAG_LABELS = { explore:'🔭 Explore', wip:'🔧 In Progress', done:'✅ Done', random:'💬 Random' };
+
+function loadIdeas() {
+  try { const r = localStorage.getItem('wp3_ideas'); if (r) ideas = JSON.parse(r); } catch(e) {}
+}
+function saveIdeas() {
+  try { localStorage.setItem('wp3_ideas', JSON.stringify(ideas)); } catch(e) {}
+}
+
+function toggleIdeas() {
+  ideasOpen = !ideasOpen;
+  document.getElementById('ideas-drawer').classList.toggle('open', ideasOpen);
+  document.getElementById('ideas-backdrop').classList.toggle('open', ideasOpen);
+  if (ideasOpen) renderIdeas();
+}
+
+function setFilter(btn) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  ideasFilter = btn.dataset.filter;
+  renderIdeas();
+}
+
+function addIdea() {
+  const idea = {
+    id: Date.now(),
+    title: '',
+    notes: '',
+    tag: 'explore',
+    starred: false,
+    date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
+  };
+  ideas.unshift(idea);
+  saveIdeas();
+  updateFabCount();
+  renderIdeas();
+  setTimeout(() => {
+    const inp = document.querySelector(`[data-id="${idea.id}"].idea-title-input`);
+    if (inp) inp.focus();
+  }, 40);
+}
+
+function deleteIdea(id) {
+  ideas = ideas.filter(i => i.id !== id);
+  saveIdeas(); updateFabCount(); renderIdeas();
+}
+
+function setIdeaTitle(el) {
+  const id = +el.dataset.id;
+  const idea = ideas.find(i => i.id === id);
+  if (idea) { idea.title = el.value; saveIdeas(); }
+}
+
+function setIdeaNotes(el) {
+  const id = +el.dataset.id;
+  const idea = ideas.find(i => i.id === id);
+  if (idea) { idea.notes = el.value; saveIdeas(); }
+}
+
+function setIdeaTag(el) {
+  const id = +el.dataset.id;
+  const idea = ideas.find(i => i.id === id);
+  if (idea) { idea.tag = el.value; saveIdeas(); renderIdeas(); }
+}
+
+function toggleIdeaStar(id) {
+  const idea = ideas.find(i => i.id === id);
+  if (idea) { idea.starred = !idea.starred; saveIdeas(); renderIdeas(); }
+}
+
+function renderIdeas() {
+  const query = (document.getElementById('ideas-search')?.value || '').toLowerCase();
+  let filtered = ideas.filter(idea => {
+    if (ideasFilter === 'starred' && !idea.starred) return false;
+    if (ideasFilter !== 'all' && ideasFilter !== 'starred' && idea.tag !== ideasFilter) return false;
+    if (query && !idea.title.toLowerCase().includes(query) && !idea.notes.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  const list = document.getElementById('ideas-list');
+  if (!list) return;
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="ideas-empty">
+      <div class="ei">💡</div>
+      <p>${query ? 'No ideas match your search.' : 'No ideas yet.<br>Hit <strong>＋ New idea</strong> to capture<br>a thought you want to explore.'}</p>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(idea => `
+    <div class="idea-card ${idea.starred?'starred':''}" data-id="${idea.id}">
+      <div class="idea-card-top">
+        <input class="idea-title-input" value="${esc(idea.title)}" placeholder="Idea title…"
+          data-id="${idea.id}" oninput="setIdeaTitle(this)">
+        <button class="idea-star-btn ${idea.starred?'on':''}" onclick="toggleIdeaStar(${idea.id})"
+          title="${idea.starred?'Unstar':'Star'}">★</button>
+      </div>
+      <textarea class="idea-notes-input" rows="2" placeholder="Notes, links, why this excites you…"
+        data-id="${idea.id}" oninput="setIdeaNotes(this)">${esc(idea.notes)}</textarea>
+      <div class="idea-card-footer">
+        <select class="idea-tag-select" data-id="${idea.id}" onchange="setIdeaTag(this)">
+          <option value="explore" ${idea.tag==='explore'?'selected':''}>🔭 Explore</option>
+          <option value="wip"     ${idea.tag==='wip'    ?'selected':''}>🔧 In Progress</option>
+          <option value="done"    ${idea.tag==='done'   ?'selected':''}>✅ Done</option>
+          <option value="random"  ${idea.tag==='random' ?'selected':''}>💬 Random</option>
+        </select>
+        <span class="idea-date">${esc(idea.date)}</span>
+        <button class="idea-del-btn" onclick="deleteIdea(${idea.id})" title="Delete">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function updateFabCount() {
+  const el = document.getElementById('fab-count');
+  if (el) el.textContent = ideas.length;
+}
+
+// ── Workout data ───────────────────────────────────────────────────────────
+const WO_TYPES = [
+  { value:'pilates',  icon:'🧘', label:'Pilates'  },
+  { value:'strength', icon:'🏋️', label:'Strength' },
+  { value:'boxing',   icon:'🥊', label:'Boxing'   },
+  { value:'cardio',   icon:'🏃', label:'Cardio'   },
+  { value:'hiit',     icon:'⚡', label:'HIIT'     },
+  { value:'cycling',  icon:'🚴', label:'Cycling'  },
+  { value:'swimming', icon:'🏊', label:'Swimming' },
+  { value:'other',    icon:'💪', label:'Other'    },
+];
+
+let woLibrary = [];       // [{id, name, url, duration, type}]
+let woWeekPlan = {};      // { "YYYY-MM-DD": { workoutId, notes } }
+let woTab = 'lib';
+let woPanelOpen = false;
+let woMonthOffset = 0; // months from current month
+
+// Your real workout library (from spreadsheet)
+const WO_STARTERS = [
+  // ── Pilates ──────────────────────────────────────────────────────────────
+  { id:101, name:'Abs/Deep Core – Marie Steffan (No Kneeling)',       url:'https://youtu.be/ITDNw9YGH2A?si=eYT9h54UaJDC1wv1', duration:'30m', type:'pilates'  },
+  { id:102, name:'Full Body Mobility – Marie Stefan (No Kneeling)',   url:'https://youtu.be/3tCW-j2AQ-c?si=ib3emnsXLpDdzDUo',  duration:'30m', type:'pilates'  },
+  { id:103, name:'Deep Core w/ Weights – Marie Stefan',              url:'https://youtu.be/pJw9AaCXiTA?si=9Nh9xDrL2Apel-bb',  duration:'30m', type:'pilates'  },
+  { id:104, name:'40m Full Body Mobility – Marie Stefan',            url:'https://youtu.be/x-0vbzXYQM?si=US4GF07Dw-0zXkx8',   duration:'45m', type:'pilates'  },
+  { id:105, name:'30m Pilates – Jacinta Brown',                      url:'https://youtu.be/W8lIV9QpvsMU?si=UJFuIGchun2_2Anx', duration:'30m', type:'pilates'  },
+  { id:106, name:'30m Pilates – Jacinta Brown (No Kneeling)',        url:'https://youtu.be/xAGPOpQc6ol?si=KXW-ZZuFCWmDnK_3', duration:'30m', type:'pilates'  },
+  { id:107, name:'Stability Ball – Body Line Pilates',               url:'https://youtu.be/Xd1fG2M0v8Y?si=1mgtDeg683yuJdc',   duration:'30m', type:'pilates'  },
+  { id:108, name:'Gentle Pilates – Move with Nicole',                url:'https://youtu.be/Xs6gahs0seA?si=WR3DHHBhNMXzxE',   duration:'30m', type:'pilates'  },
+  { id:109, name:'Morning Pilates – Move with Nicole',               url:'https://youtu.be/ecZ09lTiFI?si=6a-Fl22-P9UViDUj',  duration:'30m', type:'pilates'  },
+  { id:110, name:'Move with Nicole – Knee & Wrist Friendly',         url:'https://youtu.be/xg3B2vk5THOU?si=xfzUmrnBqrmwwjlKZ', duration:'30m', type:'pilates' },
+  // ── Strength ─────────────────────────────────────────────────────────────
+  { id:111, name:'Full Body Resistance Band',                        url:'https://youtu.be/18hPypKsQ8w?si=LCb-tGwUI1AFDOOh',  duration:'45m', type:'strength' },
+  { id:112, name:'30m Full Body – Move with Nicole',                 url:'https://youtu.be/2mkR5LPhOC4?si=mY4vxNIdEkQdnMD-', duration:'30m', type:'strength' },
+  { id:113, name:'Beginner Gym Sesh',                                url:'https://youtu.be/88nxP93ymsl?si=okxjeEQuRbwQpXNA',  duration:'45m', type:'strength' },
+  { id:114, name:'Full Body with Dumbbell',                          url:'https://youtu.be/YMaTxFo0Q7Q?si=F5OkAQWAyyJT8mOV',  duration:'45m', type:'strength' },
+  { id:115, name:'Full Body Calisthenics',                           url:'',                                                   duration:'30m', type:'strength' },
+  // ── Boxing ───────────────────────────────────────────────────────────────
+  { id:116, name:'Boxing Drills Beginner',                           url:'https://youtu.be/7CZ5l-PZjEg?si=bnO4QJpxvpcIvaN8',  duration:'30m', type:'boxing'   },
+  { id:117, name:'Boxing Stances & Basics',                          url:'https://youtu.be/kKDHdsVN6b8?si=z6ctK9K_ml6yzzfc',  duration:'20m', type:'boxing'   },
+  { id:118, name:'Boxing 101',                                       url:'https://youtu.be/D8DouKeOdfl?si=61GbJxTigJMWXyQ',   duration:'30m', type:'boxing'   },
+  // ── Other ────────────────────────────────────────────────────────────────
+  { id:119, name:'Prehab Exercises',                                 url:'https://youtu.be/fhhz4ynEizMI?si=HIGgC8cmcA0toaWr', duration:'30m', type:'other'    },
+  { id:120, name:'Apple Fitness+',                                   url:'',                                                   duration:'30m', type:'other'    },
+];
+
+// June 2026 week plan (Mon 8 Jun = Week 1 start)
+const WO_JUNE_PLAN = {
+  // Week 1
+  '2026-06-08': { workoutId:101 }, // Mon – Abs/Deep Core
+  '2026-06-09': { workoutId:111 }, // Tue – Full Body Resistance Band
+  // Wed rest
+  '2026-06-11': { workoutId:116 }, // Thu – Boxing Drills Beginner
+  '2026-06-12': { workoutId:105 }, // Fri – 30m Pilates Jacinta Brown
+  '2026-06-14': { workoutId:103 }, // Sun – Deep Core w/ Weights
+  // Week 2
+  '2026-06-15': { workoutId:108 }, // Mon – Gentle Pilates Move with Nicole
+  '2026-06-16': { workoutId:120 }, // Tue – Apple Fitness+
+  '2026-06-18': { workoutId:112 }, // Thu – 30m Full Body Move with Nicole
+  '2026-06-19': { workoutId:106 }, // Fri – Pilates Jacinta Brown No Kneeling
+  '2026-06-20': { workoutId:120 }, // Sat – Apple Fitness+
+  '2026-06-21': { workoutId:107 }, // Sun – Stability Ball Body Line Pilates
+  // Week 3
+  '2026-06-22': { workoutId:109 }, // Mon – Morning Pilates Move with Nicole
+  '2026-06-23': { workoutId:119 }, // Tue – Prehab Exercises
+  '2026-06-25': { workoutId:116 }, // Thu – Boxing Drills Beginner
+  '2026-06-26': { workoutId:110 }, // Fri – Move with Nicole Knee & Wrist Friendly
+  '2026-06-27': { workoutId:116 }, // Sat – Boxing
+  '2026-06-28': { workoutId:102 }, // Sun – Full Body Mobility Marie Stefan
+  // Week 4
+  '2026-06-30': { workoutId:113 }, // Tue – Beginner Gym Sesh
+  '2026-07-02': { workoutId:120 }, // Thu – Apple Fitness+
+  '2026-07-03': { workoutId:104 }, // Fri – 40m Full Body Mobility Marie Stefan
+  '2026-07-04': { workoutId:115 }, // Sat – Full Body Calisthenics
+  '2026-07-05': { workoutId:114 }, // Sun – Full Body with Dumbbell
+};
+
+const WO_LIB_VERSION = '2'; // bump this whenever WO_STARTERS changes
+
+function saveWo() {
+  localStorage.setItem('wp3_wo_lib',     JSON.stringify(woLibrary));
+  localStorage.setItem('wp3_wo_plan',    JSON.stringify(woWeekPlan));
+  localStorage.setItem('wp3_wo_version', WO_LIB_VERSION);
+}
+function loadWo() {
+  const storedVer = localStorage.getItem('wp3_wo_version');
+  if (storedVer !== WO_LIB_VERSION) {
+    // Version mismatch — load real library and seed the June plan
+    woLibrary  = WO_STARTERS;
+    try { woWeekPlan = JSON.parse(localStorage.getItem('wp3_wo_plan')) || {}; } catch(e){ woWeekPlan={}; }
+    Object.assign(woWeekPlan, WO_JUNE_PLAN);
+    saveWo();
+  } else {
+    try { woLibrary  = JSON.parse(localStorage.getItem('wp3_wo_lib'))  || WO_STARTERS; } catch(e){ woLibrary=WO_STARTERS; }
+    try { woWeekPlan = JSON.parse(localStorage.getItem('wp3_wo_plan')) || {};            } catch(e){ woWeekPlan={}; }
+  }
+}
+
+function woTypeIcon(type) {
+  return (WO_TYPES.find(t=>t.value===type)||WO_TYPES[WO_TYPES.length-1]).icon;
+}
+
+// ── Panel toggle ───────────────────────────────────────────────────────────
+function toggleWorkoutPanel() {
+  woPanelOpen = !woPanelOpen;
+  const panel  = document.getElementById('wo-panel');
+  const layout = document.getElementById('main-layout');
+  const btn    = document.getElementById('wo-toggle-btn');
+  if (woPanelOpen) {
+    panel.classList.add('open');
+    layout.style.display = 'none';
+    btn.classList.add('wo-active');
+    renderWoLib();
+    renderWoWeek();
+  } else {
+    panel.classList.remove('open');
+    layout.style.display = 'flex';
+    btn.classList.remove('wo-active');
+    renderWeek(); // refresh day cards to show workout cards
+  }
+}
+
+function switchWoTab(tab) {
+  woTab = tab;
+  document.getElementById('wo-tab-lib').classList.toggle('active',   tab==='lib');
+  document.getElementById('wo-tab-week').classList.toggle('active',  tab==='week');
+  document.getElementById('wo-tab-month').classList.toggle('active', tab==='month');
+  document.getElementById('wo-lib-content').style.display   = tab==='lib'   ? 'block' : 'none';
+  document.getElementById('wo-week-content').style.display  = tab==='week'  ? 'block' : 'none';
+  document.getElementById('wo-month-content').style.display = tab==='month' ? 'block' : 'none';
+  if (tab === 'month') renderWoMonth();
+}
+
+// ── Library ────────────────────────────────────────────────────────────────
+function addWorkout() {
+  const id = Date.now();
+  woLibrary.push({ id, name:'', url:'', duration:'30m', type:'strength' });
+  saveWo();
+  renderWoLib();
+  // focus the new name input
+  setTimeout(()=>{
+    const el = document.querySelector(`[data-woid="${id}"] .wo-input.name`);
+    if (el) el.focus();
+  }, 30);
+}
+
+function deleteWorkout(id) {
+  woLibrary = woLibrary.filter(w=>w.id!==id);
+  // remove from week plan
+  for (const ds in woWeekPlan) {
+    if (woWeekPlan[ds]?.workoutId === id) delete woWeekPlan[ds];
+  }
+  saveWo();
+  renderWoLib();
+  renderWoWeek();
+}
+
+function setWoField(id, field, value) {
+  const w = woLibrary.find(w=>w.id===id);
+  if (w) { w[field] = value; saveWo(); }
+  if (field === 'type') renderWoLib(); // re-render to update icon
+}
+
+function renderWoLib() {
+  const grid = document.getElementById('wo-lib-grid');
+  if (!grid) return;
+  if (woLibrary.length === 0) {
+    grid.innerHTML = `<div style="color:#6b7280;font-size:0.85rem;padding:20px 0;grid-column:1/-1">
+      No workouts yet. Hit <strong>+ Add Workout</strong> to build your library.
+    </div>`;
+    return;
+  }
+  grid.innerHTML = woLibrary.map(w => {
+    const typeOpts = WO_TYPES.map(t=>
+      `<option value="${t.value}" ${w.type===t.value?'selected':''}>${t.icon} ${t.label}</option>`
+    ).join('');
+    const durOpts = ['15m','20m','30m','45m','1h','1.5h','2h'].map(d=>
+      `<option value="${d}" ${w.duration===d?'selected':''}>${d}</option>`
+    ).join('');
+    const safeUrl = w.url ? (w.url.startsWith('http')?w.url:'https://'+w.url) : '#';
+    return `<div class="wo-card" data-woid="${w.id}">
+      <div class="wo-card-top">
+        <div class="wo-type-icon">${woTypeIcon(w.type)}</div>
+        <div class="wo-card-fields">
+          <input class="wo-input name" value="${esc(w.name)}" placeholder="Workout name…"
+            oninput="setWoField(${w.id},'name',this.value)">
+          <input class="wo-input url" value="${esc(w.url)}" placeholder="Video / URL (optional)"
+            oninput="setWoField(${w.id},'url',this.value)">
+        </div>
+      </div>
+      <div class="wo-card-row">
+        <select class="wo-select" onchange="setWoField(${w.id},'type',this.value)">${typeOpts}</select>
+        <select class="wo-select" onchange="setWoField(${w.id},'duration',this.value)">${durOpts}</select>
+      </div>
+      <div class="wo-card-footer">
+        ${w.url ? `<a class="wo-open-btn" href="${safeUrl}" target="_blank" rel="noopener">▶ Open</a>` : ''}
+        <button class="wo-del-btn" onclick="deleteWorkout(${w.id})">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Week Plan ──────────────────────────────────────────────────────────────
+function renderWoWeek() {
+  const grid = document.getElementById('wo-week-grid');
+  if (!grid) return;
+  if (woLibrary.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:#6b7280;font-size:0.88rem">
+      <div style="font-size:2rem;margin-bottom:10px">📚</div>
+      <strong>Your library is empty.</strong><br>
+      Go to the <a href="#" onclick="switchWoTab('lib');return false;" style="color:#16a34a;font-weight:700">Library tab</a> first to add your workouts, then assign them here.
+    </div>`;
+    return;
+  }
+  const dates = getWeekDates(weekOffset);
+  const today = fmt(new Date());
+  const libOpts = [
+    `<option value="">— None —</option>`,
+    ...woLibrary.map(w=>`<option value="${w.id}">${woTypeIcon(w.type)} ${esc(w.name||'(unnamed)')}</option>`)
+  ].join('');
+
+  grid.innerHTML = dates.map((d,i) => {
+    const ds = fmt(d);
+    const isToday = ds === today;
+    const plan = woWeekPlan[ds] || {};
+    const wo = woLibrary.find(w=>w.id===plan.workoutId);
+    const safeUrl = wo?.url ? (wo.url.startsWith('http')?wo.url:'https://'+wo.url) : null;
+    return `<div class="wo-day-col${isToday?' today':''}">
+      <div class="wo-day-head">
+        <div class="wdh-name">${DAY_FULL[i]}</div>
+        <div class="wdh-date">${d.getDate()} ${MONTHS[d.getMonth()]}</div>
+      </div>
+      <div class="wo-day-body">
+        <select class="wo-day-select" onchange="setWoPlan('${ds}',+this.value||null)">
+          ${woLibrary.map(w=>`<option value="${w.id}" ${plan.workoutId===w.id?'selected':''}>
+            ${woTypeIcon(w.type)} ${esc(w.name||'(unnamed)')}</option>`).join('')}
+          <option value="" ${!plan.workoutId?'selected':''}>— Rest day —</option>
+        </select>
+        ${wo ? `
+        <div class="wo-day-preview">
+          <div class="wdp-name">${woTypeIcon(wo.type)} ${esc(wo.name)}</div>
+          <div class="wdp-meta">${wo.duration}${wo.type?' · '+wo.type:''}</div>
+          ${safeUrl ? `<a class="wdp-link" href="${safeUrl}" target="_blank" rel="noopener">▶ Open workout</a>` : ''}
+        </div>
+        <textarea class="wo-notes-input" rows="2" placeholder="Notes for today…"
+          oninput="setWoPlanNotes('${ds}',this.value)">${esc(plan.notes||'')}</textarea>
+        ` : '<div style="font-size:0.75rem;color:#9ca3af;padding:4px 0">Rest day 😴</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setWoPlan(ds, workoutId) {
+  if (!woWeekPlan[ds]) woWeekPlan[ds] = {};
+  if (workoutId) woWeekPlan[ds].workoutId = workoutId;
+  else delete woWeekPlan[ds];
+  saveWo();
+  renderWoWeek();
+}
+
+function setWoPlanNotes(ds, notes) {
+  if (!woWeekPlan[ds]) woWeekPlan[ds] = {};
+  woWeekPlan[ds].notes = notes;
+  saveWo();
+}
+
+// ── Month Plan ─────────────────────────────────────────────────────────────
+function changeWoMonth(delta) {
+  woMonthOffset += delta;
+  renderWoMonth();
+}
+
+function renderWoMonth() {
+  const cal   = document.getElementById('wo-month-cal');
+  const label = document.getElementById('wo-month-label');
+  if (!cal) return;
+
+  const now = new Date();
+  const y   = now.getFullYear();
+  const m   = now.getMonth() + woMonthOffset; // may overflow/underflow
+  const base = new Date(y, m, 1);
+  const year  = base.getFullYear();
+  const month = base.getMonth();
+
+  label.textContent = `${MONTHS_FULL[month]} ${year}`;
+
+  // Day of week of 1st (0=Sun…6=Sat), convert to Mon-based (0=Mon…6=Sun)
+  const firstDow = (base.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = fmt(new Date());
+
+  const libOpts = woLibrary.map(w =>
+    `<option value="${w.id}">${woTypeIcon(w.type)} ${esc(w.name||'(unnamed)')}</option>`
+  ).join('');
+
+  // Header row
+  const headers = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i) =>
+    `<div class="wo-month-hdr${i>=5?' weekend':''}">${d}</div>`
+  ).join('');
+
+  // Empty cells before 1st
+  const empties = Array.from({length:firstDow}, ()=>`<div class="wo-mday empty"></div>`).join('');
+
+  // Day cells
+  const days = Array.from({length:daysInMonth}, (_,i) => {
+    const day  = i + 1;
+    const ds   = `${String(year).padStart(4,'0')}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const plan = woWeekPlan[ds];
+    const wo   = plan?.workoutId ? woLibrary.find(w=>w.id===plan.workoutId) : null;
+    const isToday = ds === today;
+    const safeUrl = wo?.url ? (wo.url.startsWith('http')?wo.url:'https://'+wo.url) : null;
+
+    const selOpts = [
+      `<option value="">— Rest —</option>`,
+      ...woLibrary.map(w=>`<option value="${w.id}" ${plan?.workoutId===w.id?'selected':''}>${woTypeIcon(w.type)} ${esc(w.name||'(unnamed)')}</option>`)
+    ].join('');
+
+    return `<div class="wo-mday${isToday?' wo-mday-today':''}${wo?' has-workout':''}" id="mday-${ds}">
+      <div class="wo-mday-num">${day}</div>
+      ${wo ? `
+        <div class="wo-mday-chip" title="${esc(wo.name)}" onclick="toggleMdaySel('${ds}')">
+          <span>${woTypeIcon(wo.type)}</span><span>${esc(wo.name)}</span>
+        </div>
+        ${safeUrl ? `<a href="${safeUrl}" target="_blank" rel="noopener"
+          style="font-size:0.65rem;color:#16a34a;font-weight:700;text-decoration:none;"
+          onclick="event.stopPropagation()">▶ open</a>` : ''}
+      ` : `
+        <div class="wo-mday-add" onclick="toggleMdaySel('${ds}')">+ assign</div>
+      `}
+      <select class="wo-mday-sel" id="msel-${ds}" style="display:none"
+        onchange="setWoPlanFromMonth('${ds}',this.value); this.style.display='none'; renderWoMonth()">
+        ${selOpts}
+      </select>
+    </div>`;
+  }).join('');
+
+  cal.innerHTML = headers + empties + days;
+}
+
+function toggleMdaySel(ds) {
+  const sel = document.getElementById(`msel-${ds}`);
+  if (!sel) return;
+  sel.style.display = sel.style.display === 'none' ? 'block' : 'none';
+  if (sel.style.display === 'block') sel.focus();
+}
+
+function setWoPlanFromMonth(ds, val) {
+  const workoutId = +val || null;
+  if (workoutId) {
+    if (!woWeekPlan[ds]) woWeekPlan[ds] = {};
+    woWeekPlan[ds].workoutId = workoutId;
+  } else {
+    delete woWeekPlan[ds];
+  }
+  saveWo();
+}
+
+// ── Day column workout card (shown in planner view) ────────────────────────
+function dayWorkoutCardHtml(ds) {
+  const plan = woWeekPlan[ds];
+  if (!plan?.workoutId) return '';
+  const wo = woLibrary.find(w=>w.id===plan.workoutId);
+  if (!wo) return '';
+  const safeUrl = wo.url ? (wo.url.startsWith('http')?wo.url:'https://'+wo.url) : null;
+  return `<hr class="sec-divider">
+    <div>
+      <div class="sec-label">💪 Workout</div>
+      <div class="day-workout-card" ${safeUrl?`href="${safeUrl}" target="_blank" rel="noopener"`:''}
+        style="${safeUrl?'cursor:pointer':'cursor:default'}"
+        onclick="${safeUrl?`window.open('${safeUrl}','_blank')`:''}">
+        <div class="dwc-icon">${woTypeIcon(wo.type)}</div>
+        <div class="dwc-info">
+          <div class="dwc-name">${esc(wo.name||'Workout')}</div>
+          <div class="dwc-meta">${wo.duration}${plan.notes?' · '+esc(plan.notes.split('\n')[0].substring(0,30)):''}</div>
+        </div>
+        ${safeUrl ? `<a class="dwc-play" href="${safeUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">▶</a>` : ''}
+      </div>
+    </div>`;
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+loadWo();
+load();
+loadIdeas();
+renderWeek();
+updateFabCount();
+</script>
+</body>
+</html>
