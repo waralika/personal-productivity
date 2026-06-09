@@ -224,6 +224,112 @@
     text-decoration: line-through; color: var(--muted);
   }
 
+  /* ── Recurring tasks sidebar ── */
+  .recur-list { display: flex; flex-direction: column; gap: 6px; }
+  .recur-item {
+    padding: 9px 11px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .recur-item:hover { border-color: var(--primary); box-shadow: 0 1px 6px rgba(124,111,205,0.1); }
+  .recur-item-top {
+    display: flex; align-items: center; gap: 7px; margin-bottom: 5px;
+  }
+  .recur-type-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .recur-type-dot.work     { background: var(--primary); }
+  .recur-type-dot.personal { background: #f472b6; }
+  .recur-type-dot.none     { background: #d1d5db; }
+  .recur-name {
+    flex: 1; font-size: 0.82rem; font-weight: 700; color: var(--text);
+    line-height: 1.3;
+  }
+  .recur-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s; margin-left: auto; }
+  .recur-item:hover .recur-actions { opacity: 1; }
+  .recur-edit-btn, .recur-del-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 0.75rem; padding: 2px 5px; border-radius: 5px;
+    color: var(--muted); transition: all 0.12s;
+  }
+  .recur-edit-btn:hover { color: var(--primary); background: var(--primary-light); }
+  .recur-del-btn:hover  { color: #f87171; background: #fef2f2; }
+  .recur-item-bottom {
+    display: flex; align-items: center; gap: 6px; padding-left: 15px;
+  }
+  .recur-freq {
+    font-size: 0.67rem; color: var(--muted); flex: 1;
+  }
+  .recur-time-badge {
+    font-size: 0.65rem; color: var(--primary); background: var(--primary-light);
+    border-radius: 5px; padding: 2px 7px; flex-shrink: 0; font-weight: 600;
+  }
+
+  /* Recurring task row inside day column */
+  .recur-task-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 0;
+  }
+  .recur-task-row input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
+  .recur-task-label {
+    flex: 1; font-size: 0.82rem; font-family: inherit; color: var(--text);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .recur-task-label.done { text-decoration: line-through; color: var(--muted); }
+  .recur-icon { font-size: 0.72rem; opacity: 0.6; }
+
+  /* Recurring task modal */
+  .rtm-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 3000;
+  }
+  .rtm-box {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    background: white; border-radius: 16px; padding: 24px 26px;
+    width: 420px; max-width: 95vw; z-index: 3001;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    max-height: 90vh; overflow-y: auto;
+  }
+  .rtm-box h3 { font-size: 1rem; font-weight: 800; color: #1e1b4b; margin-bottom: 16px; }
+  .rtm-field { margin-bottom: 14px; }
+  .rtm-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin-bottom: 5px; }
+  .rtm-input, .rtm-select {
+    width: 100%; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 8px 11px; font-size: 0.85rem; font-family: inherit;
+    color: #1f2937; background: #f9fafb; outline: none;
+    transition: border-color 0.15s;
+  }
+  .rtm-input:focus, .rtm-select:focus { border-color: var(--primary); background: white; }
+  .rtm-type-row { display: flex; gap: 8px; }
+  .rtm-type-btn {
+    flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #e5e7eb;
+    background: white; font-size: 0.82rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.15s; text-align: center;
+  }
+  .rtm-type-btn.active-work     { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+  .rtm-type-btn.active-personal { border-color: #f472b6; background: #fdf2f8; color: #be185d; }
+  .rtm-days-row { display: flex; gap: 5px; flex-wrap: wrap; }
+  .rtm-day-btn {
+    width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid #e5e7eb;
+    background: white; font-size: 0.72rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+  }
+  .rtm-day-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+  .rtm-row { display: flex; gap: 10px; }
+  .rtm-row .rtm-field { flex: 1; }
+  .rtm-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .rtm-save-btn {
+    flex: 1; background: var(--primary); color: white; border: none;
+    border-radius: 9px; padding: 10px; font-size: 0.85rem; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: background 0.15s;
+  }
+  .rtm-save-btn:hover { background: #5b4fcf; }
+  .rtm-cancel-btn {
+    padding: 10px 18px; border: 1.5px solid #e5e7eb; border-radius: 9px;
+    background: white; color: #6b7280; font-size: 0.85rem; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: all 0.15s;
+  }
+  .rtm-cancel-btn:hover { border-color: var(--primary); color: var(--primary); }
+
   /* ── Week grid area ── */
   .week-scroll {
     flex: 1;
@@ -413,11 +519,12 @@
   }
   .add-btn:hover { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
 
-  .habit-row { display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid var(--border); }
+  .habit-row { display:flex; align-items:center; gap:6px; padding:5px 0; border-bottom:1px solid var(--border); }
   .habit-row:last-child { border-bottom:none; }
   .habit-name {
-    flex:1; border:none; background:transparent;
+    flex:1; min-width:0; border:none; background:transparent;
     font-size:0.78rem; font-family:inherit; color:var(--text); outline:none;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
   .habit-name::placeholder { color:var(--muted); }
   .habit-check {
@@ -427,6 +534,63 @@
     font-size:0.8rem; transition:all 0.12s; color:transparent; flex-shrink:0;
   }
   .habit-check.checked { background:var(--accent2); border-color:var(--accent2); color:#166534; }
+
+  /* Pokémon habit sprites */
+  .poke-col {
+    display:flex; flex-direction:column; align-items:center; flex-shrink:0;
+    width:38px;
+  }
+  .poke-wrap {
+    width:36px; height:36px; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg); border-radius:8px;
+    border:1px solid var(--border);
+  }
+  .poke-img {
+    width:32px; height:32px; image-rendering:pixelated;
+  }
+  .poke-xp-bar {
+    width:34px; height:4px; background:var(--border); border-radius:3px;
+    overflow:hidden; margin-top:3px;
+  }
+  .poke-xp-fill { height:100%; border-radius:3px; transition:width 0.5s ease; }
+  .poke-xp-fill.s0 { background:linear-gradient(90deg,#34d399,#6ee7b7); }
+  .poke-xp-fill.s1 { background:linear-gradient(90deg,#3b82f6,#93c5fd); }
+  .poke-xp-fill.s2 { background:linear-gradient(90deg,#f97316,#fbbf24); }
+
+  @keyframes poke-bounce {
+    0%   { transform:translateY(0) scale(1); }
+    30%  { transform:translateY(-6px) scale(1.2); }
+    60%  { transform:translateY(-2px) scale(1.05); }
+    100% { transform:translateY(0) scale(1); }
+  }
+  @keyframes poke-flash {
+    0%   { filter:brightness(1); transform:scale(1) rotate(0); }
+    15%  { filter:brightness(8) saturate(0); transform:scale(1) rotate(0); }
+    35%  { filter:brightness(3) saturate(0); transform:scale(1) rotate(0); }
+    55%  { filter:brightness(10) saturate(0); transform:scale(1) rotate(0); }
+    70%  { filter:brightness(1); transform:scale(1) rotate(0); }
+    80%  { filter:brightness(1); transform:scale(1.3) rotate(-5deg); }
+    92%  { filter:brightness(1); transform:scale(0.9) rotate(3deg); }
+    100% { filter:brightness(1); transform:scale(1) rotate(0); }
+  }
+  .poke-img.anim-bounce { animation:poke-bounce 0.4s cubic-bezier(.36,.07,.19,.97); }
+  .poke-img.anim-evolve { animation:poke-flash  1s ease forwards; }
+
+  /* Evolution toast */
+  .evo-toast {
+    position:fixed; bottom:64px; left:50%; transform:translateX(-50%);
+    background:#1a1a2e; color:#fff; border-radius:14px;
+    padding:10px 18px; font-size:0.82rem; font-weight:600;
+    box-shadow:0 4px 24px rgba(0,0,0,0.38);
+    display:flex; align-items:center; gap:10px;
+    z-index:9999; pointer-events:none;
+    animation:evo-toast-in 0.35s ease;
+  }
+  @keyframes evo-toast-in {
+    from{opacity:0;transform:translateX(-50%) translateY(16px)}
+    to  {opacity:1;transform:translateX(-50%) translateY(0)}
+  }
 
   .refl-label { font-size:0.62rem; font-weight:700; color:var(--muted); margin-bottom:3px; }
   .refl-label.well { color:#7c6fcd; }
@@ -1092,6 +1256,404 @@
   }
   .wo-mday-sel:focus { border-color: #22c55e; }
 
+  /* ── Meals panel ── */
+  .meal-panel {
+    display: none; flex: 1; flex-direction: column;
+    background: #fff7ed; overflow: hidden;
+  }
+  .meal-panel.open { display: flex; }
+  .meal-panel-header {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white; padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .meal-panel-header h2 { font-size: 1.1rem; font-weight: 800; display:flex; align-items:center; gap:8px; }
+  .meal-panel-header .meal-sub { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+  .meal-back {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    padding: 7px 14px; border-radius: 8px; font-size: 0.82rem;
+    font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s;
+  }
+  .meal-back:hover { background: rgba(255,255,255,0.35); }
+  .meal-tabs {
+    display: flex; background: white;
+    border-bottom: 2px solid #fed7aa; flex-shrink: 0;
+  }
+  .meal-tab {
+    padding: 11px 24px; font-size: 0.85rem; font-weight: 700;
+    border: none; background: transparent; cursor: pointer;
+    color: #6b7280; font-family: inherit;
+    border-bottom: 3px solid transparent; margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .meal-tab:hover { color: #ea580c; }
+  .meal-tab.active { color: #ea580c; border-bottom-color: #ea580c; }
+  .meal-content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+  .meal-content::-webkit-scrollbar { width: 5px; }
+  .meal-content::-webkit-scrollbar-thumb { background: #fed7aa; border-radius: 3px; }
+
+  /* Meal Library */
+  .meal-type-section { margin-bottom: 24px; }
+  .meal-type-header {
+    font-size: 0.85rem; font-weight: 800; color: #9a3412;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 1.5px solid #fed7aa;
+  }
+  .meal-lib-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+    gap: 10px;
+  }
+  .meal-card {
+    background: white; border: 1px solid #fed7aa;
+    border-radius: 12px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+    transition: box-shadow 0.15s;
+  }
+  .meal-card:hover { box-shadow: 0 4px 16px rgba(249,115,22,0.15); }
+  .meal-card-top { display: flex; align-items: flex-start; gap: 10px; }
+  .meal-type-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .meal-card-fields { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .meal-input {
+    border: 1px solid #fed7aa; border-radius: 7px;
+    padding: 5px 9px; font-size: 0.82rem; font-family: inherit;
+    color: #7c2d12; background: #fff7ed; outline: none;
+    transition: border-color 0.15s; width: 100%;
+  }
+  .meal-input:focus { border-color: #f97316; background: white; }
+  .meal-input.name { font-weight: 700; font-size: 0.88rem; }
+  .meal-input.url  { color: #c2410c; font-size: 0.75rem; }
+  .meal-card-footer { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  .meal-open-btn {
+    font-size: 0.75rem; color: #ea580c; text-decoration: none;
+    background: #ffedd5; border-radius: 6px; padding: 3px 10px;
+    font-weight: 700; transition: background 0.12s;
+  }
+  .meal-open-btn:hover { background: #fed7aa; }
+  .meal-del-btn {
+    background: none; border: 1px solid #fecaca; border-radius: 6px;
+    color: #f87171; font-size: 0.75rem; padding: 3px 8px;
+    cursor: pointer; font-family: inherit; transition: all 0.12s;
+  }
+  .meal-del-btn:hover { background: #fef2f2; }
+  .meal-add-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px; border: 2px dashed #fdba74; border-radius: 12px;
+    background: transparent; color: #ea580c; font-size: 0.82rem;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: all 0.15s; width: 100%; margin-top: 4px;
+  }
+  .meal-add-btn:hover { background: #ffedd5; border-color: #f97316; }
+
+  /* Meal week plan */
+  .meal-week-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 10px; min-width: 900px;
+  }
+  .meal-day-col {
+    background: white; border: 1px solid #fed7aa;
+    border-radius: 12px; overflow: hidden;
+  }
+  .meal-day-col.today { border: 2px solid #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.12); }
+  .meal-day-head {
+    background: #fff7ed; padding: 8px 12px;
+    border-bottom: 1px solid #fed7aa;
+  }
+  .meal-day-head .mdh-name { font-size: 0.8rem; font-weight: 700; color: #c2410c; }
+  .meal-day-head .mdh-date { font-size: 0.65rem; color: #6b7280; margin-top: 1px; }
+  .meal-day-col.today .meal-day-head { background: #ffedd5; }
+  .meal-day-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+  .meal-slot-label {
+    font-size: 0.65rem; font-weight: 700; color: #9a3412;
+    text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px;
+  }
+  .meal-day-sel {
+    width: 100%; border: 1px solid #fed7aa; border-radius: 7px;
+    padding: 5px 7px; font-size: 0.75rem; font-family: inherit;
+    color: #7c2d12; background: #fff7ed; outline: none; cursor: pointer;
+  }
+  .meal-day-sel:focus { border-color: #f97316; }
+  .meal-day-preview {
+    border-radius: 7px; padding: 5px 8px;
+    background: #fff7ed; border: 1px solid #fdba74;
+    font-size: 0.72rem;
+  }
+  .meal-day-preview a {
+    color: #ea580c; font-weight: 700; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .meal-day-preview a:hover { text-decoration: underline; }
+
+  /* Day column meal card */
+  .day-meal-section { margin-top: 0; }
+  .day-meal-row {
+    display: flex; align-items: center; gap: 6px;
+    background: #fff7ed; border: 1px solid #fed7aa;
+    border-radius: 7px; padding: 5px 8px;
+    margin-bottom: 4px; text-decoration: none;
+    transition: box-shadow 0.12s;
+  }
+  .day-meal-row:hover { box-shadow: 0 2px 8px rgba(249,115,22,0.2); border-color: #f97316; }
+  .dmc-icon { font-size: 0.95rem; flex-shrink: 0; }
+  .dmc-info { flex: 1; min-width: 0; }
+  .dmc-label { font-size: 0.62rem; color: #9a3412; font-weight: 700; text-transform: uppercase; }
+  .dmc-name  { font-size: 0.75rem; font-weight: 700; color: #c2410c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dmc-play  {
+    background: #f97316; color: white; border: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; flex-shrink: 0; text-decoration: none;
+    transition: background 0.12s;
+  }
+  .dmc-play:hover { background: #ea580c; }
+
+  /* ── Shopping panel ── */
+  .shop-panel {
+    display: none; flex: 1; flex-direction: column;
+    background: #fdf6ff; overflow: hidden;
+  }
+  .shop-panel.open { display: flex; }
+
+  .shop-panel-header {
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    color: white; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0; gap: 16px;
+  }
+  .shop-panel-header h2 { font-size: 1.1rem; font-weight: 800; display:flex; align-items:center; gap:8px; }
+  .shop-panel-header .shop-sub { font-size: 0.72rem; opacity: 0.75; margin-top: 2px; }
+  .shop-back {
+    background: rgba(255,255,255,0.18); border: none; color: white;
+    padding: 7px 14px; border-radius: 8px; font-size: 0.82rem;
+    font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s; white-space:nowrap;
+  }
+  .shop-back:hover { background: rgba(255,255,255,0.32); }
+  .shop-hdr-stats { display:flex; gap:18px; }
+  .shop-hdr-stat { text-align:center; }
+  .shop-hdr-stat .sv { font-size:1rem; font-weight:800; }
+  .shop-hdr-stat .sl { font-size:0.62rem; opacity:.75; text-transform:uppercase; letter-spacing:.5px; margin-top:1px; }
+
+  .shop-toolbar {
+    background: white; border-bottom: 2px solid #ede9fe;
+    padding: 10px 20px; display: flex; align-items: center;
+    gap: 8px; flex-shrink: 0; flex-wrap: wrap;
+  }
+  .shop-filter-btn {
+    padding: 5px 13px; border-radius: 20px; border: 1.5px solid #e5e0f8;
+    background: white; color: #6b7280; font-size: 0.78rem; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: all 0.14s;
+  }
+  .shop-filter-btn:hover  { border-color: #a855f7; color: #7c3aed; background: #faf8ff; }
+  .shop-filter-btn.active { background: #7c3aed; border-color: #7c3aed; color: white; }
+  .shop-clear-all-btn {
+    padding: 5px 13px; border-radius: 20px;
+    border: 1.5px solid #fca5a5; background: white; color: #ef4444;
+    font-size: 0.78rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.14s;
+  }
+  .shop-clear-all-btn:hover { background: #fef2f2; }
+  .shop-new-cat-btn {
+    margin-left: auto; padding: 5px 13px; border-radius: 20px;
+    border: 1.5px dashed #c4b5fd; background: white; color: #7c3aed;
+    font-size: 0.78rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.14s;
+  }
+  .shop-new-cat-btn:hover { background: #faf8ff; border-color: #7c3aed; }
+  .shop-cat-del {
+    background: none; border: none; color: rgba(255,255,255,0.6); font-size: 0.75rem;
+    cursor: pointer; padding: 0 2px; margin-left: -4px; line-height: 1;
+    transition: color 0.12s;
+  }
+  .shop-cat-del:hover { color: #fca5a5; }
+
+  .shop-body { flex: 1; overflow-y: auto; padding: 18px 22px 24px; }
+  .shop-body::-webkit-scrollbar { width: 5px; }
+  .shop-body::-webkit-scrollbar-thumb { background: #ddd6fe; border-radius: 3px; }
+
+  /* Each category group */
+  .shop-group { margin-bottom: 28px; }
+  .shop-group:last-child { margin-bottom: 0; }
+
+  .shop-group-label {
+    font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: #7c3aed; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .shop-group-label::after { content:''; flex:1; height:1.5px; background:#ede9fe; }
+
+  /* Horizontal scroll row of columns */
+  .shop-group-scroll {
+    display: flex; gap: 12px;
+    overflow-x: auto; padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+  }
+  .shop-group-scroll::-webkit-scrollbar { height: 4px; }
+  .shop-group-scroll::-webkit-scrollbar-thumb { background: #ddd6fe; border-radius: 2px; }
+  .shop-group-scroll::-webkit-scrollbar-track { background: transparent; }
+
+  .shop-col {
+    width: 255px; flex-shrink: 0;
+    background: white; border: 1px solid #ede9fe;
+    border-radius: 12px; overflow: visible;
+    box-shadow: 0 1px 4px rgba(124,58,237,0.06);
+    transition: box-shadow 0.15s;
+    scroll-snap-align: start;
+  }
+  .shop-col:hover { box-shadow: 0 4px 18px rgba(124,58,237,0.13); }
+
+  .shop-col-header {
+    padding: 11px 13px 9px;
+    display: flex; align-items: center; gap: 7px;
+    border-bottom: 1px solid #f3f0ff; background: #faf8ff;
+    border-radius: 12px 12px 0 0;
+  }
+  .shop-col-icon { font-size: 1.15rem; flex-shrink: 0; }
+  .shop-col-name { font-size: 0.85rem; font-weight: 800; color: #4c1d95; flex: 1; }
+  .shop-col-badge {
+    font-size: 0.62rem; font-weight: 700; border-radius: 10px;
+    padding: 2px 7px; white-space: nowrap;
+  }
+  .shop-col-badge.has-done { background: #dcfce7; color: #16a34a; }
+  .shop-col-badge.none-done { background: #ede9fe; color: #7c3aed; }
+  .shop-col-clear {
+    background: none; border: 1px solid #e0d9ff; color: #c4b5fd; font-size: 0.65rem;
+    cursor: pointer; padding: 2px 7px; border-radius: 10px;
+    font-family: inherit; font-weight: 600; transition: all 0.12s;
+  }
+  .shop-col-clear:hover { background: #ede9fe; color: #7c3aed; border-color: #c4b5fd; }
+
+  .shop-col-items { padding: 6px 10px 2px; display: flex; flex-direction: column; gap: 1px; }
+
+  /* Item row */
+  .shop-item-wrap { display: flex; flex-direction: column; }
+  .shop-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 4px; border-radius: 7px; transition: background 0.1s;
+  }
+  .shop-item:hover { background: #faf8ff; }
+  .shop-item:hover .shop-item-del { opacity: 1; }
+  .shop-item input[type="checkbox"] {
+    width: 15px; height: 15px; accent-color: #7c3aed;
+    cursor: pointer; flex-shrink: 0; margin: 0;
+  }
+  .shop-item-text {
+    flex: 1; border: none; background: transparent;
+    font-size: 0.82rem; font-family: inherit; color: #374151;
+    outline: none; min-width: 0; padding: 1px 0;
+  }
+  .shop-item-text::placeholder { color: #c4b5fd; }
+  .shop-item-text.done-text { text-decoration: line-through; color: #9ca3af; }
+  .shop-item-qty {
+    width: 36px; border: 1px solid #ede9fe; border-radius: 5px;
+    padding: 2px 4px; font-size: 0.7rem; font-family: inherit;
+    color: #7c3aed; background: #faf8ff; outline: none; text-align: center; flex-shrink: 0;
+  }
+  .shop-item-qty:focus { border-color: #a855f7; background: white; }
+  .shop-link-btn {
+    background: none; border: none; font-size: 0.82rem; cursor: pointer;
+    padding: 1px 3px; flex-shrink: 0; opacity: 0.45; transition: opacity 0.12s;
+    line-height: 1;
+  }
+  .shop-link-btn:hover { opacity: 1; }
+  .shop-link-btn.has-link { opacity: 1; filter: none; }
+  .shop-item-del {
+    background: none; border: none; color: #d1d5db; font-size: 1rem;
+    cursor: pointer; padding: 0 2px; line-height: 1; flex-shrink: 0;
+    opacity: 0; transition: all 0.12s;
+  }
+  .shop-item-del:hover { color: #f87171; }
+
+  /* URL row (slides open below item) */
+  .shop-url-row {
+    display: none; padding: 3px 4px 5px 24px;
+    gap: 6px; align-items: center;
+  }
+  .shop-url-row.open { display: flex; }
+  .shop-url-input {
+    flex: 1; border: 1px solid #ddd6fe; border-radius: 6px;
+    padding: 4px 8px; font-size: 0.73rem; font-family: inherit;
+    color: #4c1d95; background: #faf8ff; outline: none; min-width: 0;
+  }
+  .shop-url-input:focus { border-color: #a855f7; background: white; }
+  .shop-url-open-btn {
+    background: #7c3aed; color: white; border: none; border-radius: 6px;
+    padding: 4px 10px; font-size: 0.7rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.12s;
+    text-decoration: none; display: inline-block;
+  }
+  .shop-url-open-btn:hover { background: #6d28d9; }
+
+  .shop-col-footer { padding: 6px 10px 10px; }
+  .shop-add-item-btn {
+    width: 100%; padding: 6px; border: 1.5px dashed #ddd6fe;
+    border-radius: 8px; background: transparent; color: #a78bfa;
+    font-size: 0.78rem; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: all 0.14s;
+  }
+  .shop-add-item-btn:hover { background: #faf8ff; border-color: #a855f7; color: #7c3aed; }
+
+  /* Delete section button (custom sections only) */
+  .shop-col-del {
+    background: none; border: none; color: #e0d9ff; font-size: 0.9rem;
+    cursor: pointer; line-height: 1; padding: 1px 3px; border-radius: 4px;
+    transition: all 0.12s; flex-shrink: 0;
+  }
+  .shop-col-del:hover { color: #f87171; background: #fef2f2; }
+
+  /* Add-new-section card */
+  .shop-add-col-card {
+    width: 180px; flex-shrink: 0;
+    border: 2px dashed #ddd6fe; border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; cursor: pointer; color: #a78bfa; min-height: 120px;
+    transition: all 0.15s; padding: 20px;
+  }
+  .shop-add-col-card:hover { border-color: #a855f7; color: #7c3aed; background: #faf8ff; }
+  .shop-add-col-card .sacc-icon { font-size: 1.6rem; }
+  .shop-add-col-card .sacc-label { font-size: 0.78rem; font-weight: 700; text-align: center; }
+
+  /* New-section modal */
+  .nsm-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    z-index: 500; backdrop-filter: blur(3px);
+  }
+  .nsm-box {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    background: white; border-radius: 16px; padding: 28px 28px 22px;
+    z-index: 501; width: 360px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .nsm-box h3 { font-size: 1rem; font-weight: 800; color: #4c1d95; margin-bottom: 18px; }
+  .nsm-field { margin-bottom: 14px; }
+  .nsm-label { font-size: 0.72rem; font-weight: 700; color: #7c3aed; text-transform: uppercase;
+    letter-spacing: .5px; margin-bottom: 5px; }
+  .nsm-row { display: flex; gap: 8px; }
+  .nsm-input {
+    width: 100%; border: 1.5px solid #ede9fe; border-radius: 8px;
+    padding: 9px 12px; font-size: 0.85rem; font-family: inherit;
+    color: #374151; outline: none; transition: border-color 0.15s;
+  }
+  .nsm-input:focus { border-color: #a855f7; }
+  .nsm-input.icon-input { width: 60px; text-align: center; font-size: 1.2rem; flex-shrink: 0; }
+  .nsm-select {
+    width: 100%; border: 1.5px solid #ede9fe; border-radius: 8px;
+    padding: 9px 12px; font-size: 0.85rem; font-family: inherit;
+    color: #374151; outline: none; cursor: pointer; background: white;
+  }
+  .nsm-select:focus { border-color: #a855f7; }
+  .nsm-actions { display: flex; gap: 8px; margin-top: 20px; }
+  .nsm-create-btn {
+    flex: 1; background: #7c3aed; color: white; border: none;
+    border-radius: 9px; padding: 10px; font-size: 0.85rem; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: background 0.15s;
+  }
+  .nsm-create-btn:hover { background: #6d28d9; }
+  .nsm-cancel-btn {
+    padding: 10px 18px; border: 1.5px solid #ede9fe; border-radius: 9px;
+    background: white; color: #6b7280; font-size: 0.85rem; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: all 0.15s;
+  }
+  .nsm-cancel-btn:hover { border-color: #c4b5fd; color: #7c3aed; }
+
   /* topbar workout toggle */
   .wo-topbar-btn {
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
@@ -1101,6 +1663,31 @@
   }
   .wo-topbar-btn:hover   { background: rgba(255,255,255,0.25); }
   .wo-topbar-btn.wo-active { background: #22c55e; border-color: #22c55e; }
+
+  /* ── Mode toggle ── */
+  .mode-toggle {
+    display: flex; align-items: center; gap: 0;
+    background: rgba(0,0,0,0.25); border-radius: 20px;
+    padding: 3px; border: 1px solid rgba(255,255,255,0.15);
+  }
+  .mode-btn {
+    padding: 5px 14px; border-radius: 16px; border: none;
+    font-size: 0.8rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.18s; white-space: nowrap;
+    background: transparent; color: rgba(255,255,255,0.6);
+  }
+  .mode-btn.active-work     { background: #3b82f6; color: white; box-shadow: 0 1px 6px rgba(59,130,246,0.5); }
+  .mode-btn.active-personal { background: #f472b6; color: white; box-shadow: 0 1px 6px rgba(244,114,182,0.5); }
+  .mode-btn:not(.active-work):not(.active-personal):hover { color: rgba(255,255,255,0.9); }
+  .download-btn {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    color: white; border-radius: 8px; padding: 6px 13px;
+    font-size: 0.82rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .download-btn:hover { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.5); }
+  .download-btn:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
@@ -1153,13 +1740,16 @@
     <button onclick="changeWeek(1)">›</button>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
-    <div class="topbar-stats">
-      <div class="tstat"><div class="tstat-val" id="st-total">0</div><div class="tstat-lbl">Tasks</div></div>
-      <div class="tstat"><div class="tstat-val" id="st-done">0</div><div class="tstat-lbl">Done</div></div>
-      <div class="tstat"><div class="tstat-val" id="st-habits">0</div><div class="tstat-lbl">Habits</div></div>
-      <div class="tstat"><div class="tstat-val" id="st-pct">0%</div><div class="tstat-lbl">Progress</div></div>
+    <div class="mode-panel-btns" id="mode-panel-btns" style="display:flex;align-items:center;gap:8px">
+      <button class="wo-topbar-btn" id="wo-toggle-btn"    onclick="toggleWorkoutPanel()">💪 Workouts</button>
+      <button class="wo-topbar-btn" id="meal-toggle-btn"  onclick="toggleMealPanel()">🍽️ Meals</button>
+      <button class="wo-topbar-btn" id="shop-toggle-btn"  onclick="toggleShopPanel()">🛒 Shopping</button>
     </div>
-    <button class="wo-topbar-btn" id="wo-toggle-btn" onclick="toggleWorkoutPanel()">💪 Workouts</button>
+    <div class="mode-toggle">
+      <button class="mode-btn" id="mode-btn-work"     onclick="setAppMode('work')">💼 Work</button>
+      <button class="mode-btn" id="mode-btn-personal" onclick="setAppMode('personal')">🏠 Personal</button>
+    </div>
+    <button class="download-btn" onclick="downloadPlanner()" title="Download with all your data baked in">⬇ Save</button>
   </div>
 </div>
 
@@ -1212,6 +1802,60 @@
       <button onclick="changeWoMonth(1)">›</button>
     </div>
     <div class="wo-month-cal" id="wo-month-cal"></div>
+  </div>
+</div>
+
+<!-- ── Meals Panel ── -->
+<div class="meal-panel" id="meal-panel">
+  <div class="meal-panel-header">
+    <div>
+      <h2>🍽️ Meal Planner</h2>
+      <div class="meal-sub">Build your recipe library · Plan breakfast, lunch, dinner & snacks</div>
+    </div>
+    <button class="meal-back" onclick="toggleMealPanel()">← Back to Planner</button>
+  </div>
+  <div class="meal-tabs">
+    <button class="meal-tab active" id="meal-tab-lib"  onclick="switchMealTab('lib')">📚 Recipe Library</button>
+    <button class="meal-tab"        id="meal-tab-week" onclick="switchMealTab('week')">📅 Week Plan</button>
+  </div>
+  <!-- Library tab -->
+  <div class="meal-content" id="meal-lib-content">
+    <div id="meal-lib-grid"></div>
+  </div>
+  <!-- Week Plan tab -->
+  <div class="meal-content" id="meal-week-content" style="display:none; overflow-x:auto">
+    <div class="meal-week-grid" id="meal-week-grid"></div>
+  </div>
+</div>
+
+<!-- ── Shopping Panel ── -->
+<div class="shop-panel" id="shop-panel">
+  <div class="shop-panel-header">
+    <div>
+      <h2>🛒 My Shopping Lists</h2>
+      <div class="shop-sub">Groceries · Home · Health · Beauty · Fashion · Work · Wish List</div>
+    </div>
+    <div class="shop-hdr-stats">
+      <div class="shop-hdr-stat"><div class="sv" id="sh-total">0</div><div class="sl">Items</div></div>
+      <div class="shop-hdr-stat"><div class="sv" id="sh-done">0</div><div class="sl">Got it</div></div>
+      <div class="shop-hdr-stat"><div class="sv" id="sh-links">0</div><div class="sl">Links</div></div>
+    </div>
+    <button class="shop-back" onclick="toggleShopPanel()">← Back to Planner</button>
+  </div>
+  <div class="shop-toolbar">
+    <button class="shop-filter-btn active" onclick="setShopFilter('all',this)">All</button>
+    <button class="shop-filter-btn" onclick="setShopFilter('groceries',this)">🛒 Groceries</button>
+    <button class="shop-filter-btn" onclick="setShopFilter('household',this)">🏠 Home</button>
+    <button class="shop-filter-btn" onclick="setShopFilter('cleaning',this)">🧹 Cleaning</button>
+    <button class="shop-filter-btn" onclick="setShopFilter('health',this)">💊 Health & Beauty</button>
+    <button class="shop-filter-btn" onclick="setShopFilter('fashion',this)">👗 Fashion</button>
+    <button class="shop-filter-btn" onclick="setShopFilter('work',this)">💻 Work & Tech</button>
+    <button class="shop-filter-btn" onclick="setShopFilter('misc',this)">⭐ Wish List</button>
+    <button class="shop-clear-all-btn" onclick="clearAllDoneShop()">✓ Clear done</button>
+    <button class="shop-new-cat-btn" onclick="openNewCategoryModal()">＋ New category</button>
+  </div>
+  <div class="shop-body">
+    <div class="shop-grid" id="shop-grid"></div>
   </div>
 </div>
 
@@ -1467,7 +2111,15 @@ function renderSidebar() {
       <button class="add-sb-btn" onclick="addWeekTodo('work')">＋ Add task</button>
     </div>
 
-    <!-- Personal To Do's -->
+    <!-- Recurring Tasks -->
+    <div class="sb-section">
+      <div class="sb-section-title">🔁 Recurring Tasks</div>
+      ${recurSidebarHtml()}
+      <button class="add-sb-btn" onclick="openRecurModal(null)" style="margin-top:8px">＋ Add recurring task</button>
+    </div>
+
+    <!-- Personal To Do's (hidden in Work mode) -->
+    ${appMode==='personal' ? `
     <div class="sb-section">
       <div class="sb-section-title">Personal Weekly To Do's</div>
       <div class="weekly-todo-list" id="personal-todos">
@@ -1479,7 +2131,7 @@ function renderSidebar() {
         </div>`).join('')}
       </div>
       <button class="add-sb-btn" onclick="addWeekTodo('personal')">＋ Add task</button>
-    </div>
+    </div>` : ''}
 
   `;
 }
@@ -1620,21 +2272,42 @@ function renderWeek() {
         <div>
           <div class="sec-label">✅ Tasks</div>
           <div id="tasks-${ds}">
-            ${day.tasks.map((t,ti)=>taskHtml(ds,t,ti)).join('')}
+            ${day.tasks
+              .map((t,ti) => ({t,ti}))
+              .filter(({t}) => appMode==='personal' || t.schedType==='work' || !t.schedType)
+              .map(({t,ti}) => taskHtml(ds,t,ti))
+              .join('')}
           </div>
+          ${dayRecurTasksHtml(ds)}
           <button class="add-btn" onclick="addTask('${ds}')">＋ Add task</button>
         </div>
+        ${appMode==='personal' ? `
         <hr class="sec-divider">
         <div>
           <div class="sec-label">🔥 Habits</div>
-          ${day.habits.map((h,hi)=>`
-          <div class="habit-row">
+          ${day.habits.map((h,hi)=>{
+            const stage=getHabitEvoStage(hi);
+            const pid=getPokeId(hi,stage);
+            const xpInStage=getWeeklyHabitCount(hi);
+            const xpPct=stage===0?Math.min(xpInStage/EVO_STAGE1*100,100):stage===1?Math.min((xpInStage-EVO_STAGE1)/(EVO_STAGE2-EVO_STAGE1)*100,100):100;
+            const stageClass=stage===2?'s2':stage===1?'s1':'s0';
+            return `
+          <div class="habit-row" id="hrow-${ds}-${hi}">
+            <div class="poke-col">
+              <div class="poke-wrap">
+                <img class="poke-img" id="poke-${ds}-${hi}" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pid}.png" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><text y=%2230%22 font-size=%2228%22>⭐</text></svg>'" alt="">
+              </div>
+              <div class="poke-xp-bar"><div class="poke-xp-fill ${stageClass}" style="width:${xpPct}%"></div></div>
+            </div>
             <input class="habit-name" value="${esc(h.name)}" placeholder="Habit…"
               data-ds="${ds}" data-hi="${hi}" oninput="setHabitName(this)">
             <div class="habit-check ${h.done?'checked':''}" data-ds="${ds}" data-hi="${hi}"
               onclick="toggleHabit(this)">✓</div>
-          </div>`).join('')}
+          </div>`;
+          }).join('')}
         </div>
+        ${dayWorkoutCardHtml(ds)}
+        ${dayMealCardHtml(ds)}
         <hr class="sec-divider">
         <div>
           <div class="sec-label">🌙 Reflection</div>
@@ -1643,8 +2316,7 @@ function renderWeek() {
           <textarea class="reflection-input" rows="2" placeholder="…"
             data-ds="${ds}" data-key="${r.key}"
             oninput="setReflection(this)">${esc(day.reflection[r.key]||'')}</textarea>`).join('')}
-        </div>
-        ${dayWorkoutCardHtml(ds)}
+        </div>` : ''}
       </div>`;
 
     grid.appendChild(col);
@@ -1716,7 +2388,8 @@ function renderScheduleSlots(ds) {
   // Event blocks — absolutely positioned, spanning by duration
   const eventBlocks = day.tasks
     .map((t, ti) => ({ t, ti }))
-    .filter(({ t }) => t.schedDate === ds && t.schedTime)
+    .filter(({ t }) => t.schedDate === ds && t.schedTime
+      && (appMode === 'personal' || t.schedType === 'work' || !t.schedType))
     .map(({ t, ti }) => {
       const typeClass = t.schedType === 'work' ? 'type-work'
                       : t.schedType === 'personal' ? 'type-personal' : 'type-none';
@@ -1738,7 +2411,7 @@ function renderScheduleSlots(ds) {
 
   return `<div style="position:relative">
     ${slotsHtml}
-    <div class="sched-events-layer">${eventBlocks}</div>
+    <div class="sched-events-layer">${eventBlocks}${recurScheduleBlocks(ds)}</div>
   </div>`;
 }
 
@@ -1774,10 +2447,61 @@ function rerenderTasks(ds) {
   if(!c) return;
   c.innerHTML = getDay(ds).tasks.map((t,ti)=>taskHtml(ds,t,ti)).join('');
 }
+// Sync sprite + XP bar for ALL day columns sharing habit slot `hi`.
+// skipImg: element currently mid-animation (skip it so we don't interrupt the flash).
+function syncAllPokeSlot(hi, skipImg) {
+  const stage = getHabitEvoStage(hi);             // derived live from current week data
+  const count = getWeeklyHabitCount(hi);
+  const url   = getPokeUrl(hi, stage);
+  const xpPct = stage===0 ? Math.min(count/EVO_STAGE1*100, 100)
+              : stage===1 ? Math.min((count-EVO_STAGE1)/(EVO_STAGE2-EVO_STAGE1)*100, 100)
+              : 100;
+  document.querySelectorAll('img.poke-img').forEach(el => {
+    if (el === skipImg) return;
+    // ID format: poke-YYYY-MM-DD-{hi}  → last dash-segment is hi
+    const parts = (el.id || '').split('-');
+    if (parts.length < 2 || +parts[parts.length - 1] !== hi) return;
+    el.src = url;
+    const xpFill = el.closest('.poke-col')?.querySelector('.poke-xp-fill');
+    if (xpFill) { xpFill.style.width = xpPct + '%'; xpFill.className = 'poke-xp-fill s' + stage; }
+  });
+}
+
 function toggleHabit(el) {
-  const {ds,hi}=el.dataset, h=getDay(ds).habits[+hi];
-  h.done=!h.done; el.classList.toggle('checked',h.done);
-  save(); updateStats();
+  const {ds, hi: hiStr} = el.dataset;
+  const hi = +hiStr;
+  const h  = getDay(ds).habits[hi];
+
+  // Capture stage BEFORE the toggle so we can detect a transition.
+  const oldStage = getHabitEvoStage(hi);
+
+  h.done = !h.done;
+  el.classList.toggle('checked', h.done);
+  save();
+
+  // Stage AFTER the toggle (derived from live week data, which now includes this change).
+  const newStage = getHabitEvoStage(hi);
+
+  const img = document.getElementById(`poke-${ds}-${hi}`);
+  if (!img) return;
+
+  if (newStage > oldStage) {
+    // ── Evolution ──
+    img.classList.remove('anim-bounce','anim-evolve');
+    void img.offsetWidth;
+    img.classList.add('anim-evolve');
+    syncAllPokeSlot(hi, img);                                         // other columns: new form immediately
+    setTimeout(() => { img.src = getPokeUrl(hi, newStage); syncAllPokeSlot(hi, null); }, 550); // animating col: swap at peak flash
+    setTimeout(() => showEvoToast(hi, newStage, h.name), 750);
+    img.addEventListener('animationend', () => img.classList.remove('anim-evolve'), {once:true});
+  } else {
+    // ── Bounce (same stage, or devolve) ──
+    syncAllPokeSlot(hi, null);   // revert sprite + XP bar across all columns
+    img.classList.remove('anim-bounce','anim-evolve');
+    void img.offsetWidth;
+    img.classList.add('anim-bounce');
+    img.addEventListener('animationend', () => img.classList.remove('anim-bounce'), {once:true});
+  }
 }
 
 // ── Ring + Stats ───────────────────────────────────────────────────────────
@@ -1793,14 +2517,7 @@ function updateRing(ds) {
 }
 
 function updateStats() {
-  const dates=getWeekDates(weekOffset);
-  let tot=0,done=0,hab=0;
-  dates.forEach(d=>{ const day=getDay(fmt(d)); tot+=day.tasks.length; done+=day.tasks.filter(t=>t.done).length; hab+=day.habits.filter(h=>h.done).length; });
-  document.getElementById('st-total').textContent=tot;
-  document.getElementById('st-done').textContent=done;
-  document.getElementById('st-habits').textContent=hab;
-  const pct=tot>0?Math.round(done/tot*100):0;
-  document.getElementById('st-pct').textContent=`${pct}%`;
+  // Stats bar elements were removed; this is intentionally a no-op.
 }
 
 function changeWeek(dir) { weekOffset+=dir; renderWeek(); }
@@ -2256,6 +2973,9 @@ function toggleWorkoutPanel() {
   const layout = document.getElementById('main-layout');
   const btn    = document.getElementById('wo-toggle-btn');
   if (woPanelOpen) {
+    // Close other panels if open
+    if (shopOpen)      { shopOpen=false;      document.getElementById('shop-panel').classList.remove('open');  document.getElementById('shop-toggle-btn').classList.remove('wo-active'); }
+    if (mealPanelOpen) { mealPanelOpen=false; document.getElementById('meal-panel').classList.remove('open');  document.getElementById('meal-toggle-btn').classList.remove('wo-active'); }
     panel.classList.add('open');
     layout.style.display = 'none';
     btn.classList.add('wo-active');
@@ -2527,12 +3247,1188 @@ function dayWorkoutCardHtml(ds) {
     </div>`;
 }
 
+// ── Meal Planner ───────────────────────────────────────────────────────────
+const MEAL_TYPES = [
+  { value:'breakfast', icon:'🌅', label:'Breakfast' },
+  { value:'lunch',     icon:'☀️', label:'Lunch'      },
+  { value:'dinner',    icon:'🌙', label:'Dinner'     },
+  { value:'snack',     icon:'🍎', label:'Snack'      },
+];
+
+let mealLibrary  = [];   // [{id, name, url, type}]
+let mealPlan     = {};   // { "YYYY-MM-DD": { breakfast:id|null, lunch:id|null, dinner:id|null, snack:id|null } }
+let mealTab      = 'lib';
+let mealPanelOpen= false;
+
+const MEAL_LIB_VERSION = '1';
+
+const MEAL_STARTERS = [
+  // Breakfast
+  { id:201, name:'Masala Oats',          url:'', type:'breakfast' },
+  { id:202, name:'Poha with Peanuts',    url:'', type:'breakfast' },
+  { id:203, name:'Avocado Toast',        url:'', type:'breakfast' },
+  { id:204, name:'Banana Peanut Butter Smoothie', url:'', type:'breakfast' },
+  { id:205, name:'Greek Yoghurt Bowl',   url:'', type:'breakfast' },
+  // Lunch
+  { id:206, name:'Dal Rice + Sabzi',     url:'', type:'lunch' },
+  { id:207, name:'Chapati + Paneer',     url:'', type:'lunch' },
+  { id:208, name:'Quinoa Buddha Bowl',   url:'', type:'lunch' },
+  { id:209, name:'Rajma Chawal',         url:'', type:'lunch' },
+  { id:210, name:'Grilled Chicken Salad',url:'', type:'lunch' },
+  // Dinner
+  { id:211, name:'Khichdi + Ghee',       url:'', type:'dinner' },
+  { id:212, name:'Stir-fry Veggies + Tofu', url:'', type:'dinner' },
+  { id:213, name:'Egg Bhurji + Toast',   url:'', type:'dinner' },
+  { id:214, name:'Soup + Bread',         url:'', type:'dinner' },
+  { id:215, name:'Pasta Arrabiata',      url:'', type:'dinner' },
+  // Snacks
+  { id:216, name:'Mixed Nuts & Dates',   url:'', type:'snack' },
+  { id:217, name:'Hummus + Carrots',     url:'', type:'snack' },
+  { id:218, name:'Makhana (Fox Nuts)',   url:'', type:'snack' },
+  { id:219, name:'Fruit Bowl',           url:'', type:'snack' },
+];
+
+function saveMeal() {
+  localStorage.setItem('wp3_meal_lib',  JSON.stringify(mealLibrary));
+  localStorage.setItem('wp3_meal_plan', JSON.stringify(mealPlan));
+  localStorage.setItem('wp3_meal_ver',  MEAL_LIB_VERSION);
+}
+function loadMeal() {
+  const ver = localStorage.getItem('wp3_meal_ver');
+  if (ver !== MEAL_LIB_VERSION) {
+    mealLibrary = MEAL_STARTERS.map(m=>({...m}));
+    mealPlan = {};
+    saveMeal();
+  } else {
+    try { mealLibrary = JSON.parse(localStorage.getItem('wp3_meal_lib'))  || MEAL_STARTERS.map(m=>({...m})); } catch(e){ mealLibrary=MEAL_STARTERS.map(m=>({...m})); }
+    try { mealPlan    = JSON.parse(localStorage.getItem('wp3_meal_plan')) || {}; } catch(e){ mealPlan={}; }
+  }
+}
+
+function mealTypeIcon(type) {
+  return (MEAL_TYPES.find(t=>t.value===type)||MEAL_TYPES[3]).icon;
+}
+
+// ── Panel toggle ──
+function toggleMealPanel() {
+  mealPanelOpen = !mealPanelOpen;
+  const panel  = document.getElementById('meal-panel');
+  const layout = document.getElementById('main-layout');
+  const btn    = document.getElementById('meal-toggle-btn');
+  if (mealPanelOpen) {
+    if (woPanelOpen)  { woPanelOpen=false;  document.getElementById('wo-panel').classList.remove('open');   document.getElementById('wo-toggle-btn').classList.remove('wo-active'); }
+    if (shopOpen)     { shopOpen=false;     document.getElementById('shop-panel').classList.remove('open'); document.getElementById('shop-toggle-btn').classList.remove('wo-active'); }
+    panel.classList.add('open');
+    layout.style.display = 'none';
+    btn.classList.add('wo-active');
+    renderMealLib();
+    renderMealWeek();
+  } else {
+    panel.classList.remove('open');
+    layout.style.display = 'flex';
+    btn.classList.remove('wo-active');
+    renderWeek();
+  }
+}
+
+function switchMealTab(tab) {
+  mealTab = tab;
+  document.getElementById('meal-tab-lib').classList.toggle('active',  tab==='lib');
+  document.getElementById('meal-tab-week').classList.toggle('active', tab==='week');
+  document.getElementById('meal-lib-content').style.display  = tab==='lib'  ? 'block' : 'none';
+  document.getElementById('meal-week-content').style.display = tab==='week' ? 'block' : 'none';
+  if (tab === 'week') renderMealWeek();
+}
+
+// ── Library ──
+function renderMealLib() {
+  const container = document.getElementById('meal-lib-grid');
+  if (!container) return;
+  let html = '';
+  MEAL_TYPES.forEach(mt => {
+    const meals = mealLibrary.filter(m => m.type === mt.value);
+    html += `<div class="meal-type-section">
+      <div class="meal-type-header">${mt.icon} ${mt.label}</div>
+      <div class="meal-lib-grid">
+        ${meals.map(m => mealCardHtml(m)).join('')}
+      </div>
+      <button class="meal-add-btn" onclick="addMeal('${mt.value}')">+ Add ${mt.label}</button>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function mealCardHtml(m) {
+  const safeUrl = m.url ? (m.url.startsWith('http')?m.url:'https://'+m.url) : null;
+  return `<div class="meal-card" id="meal-card-${m.id}">
+    <div class="meal-card-top">
+      <div class="meal-type-icon">${mealTypeIcon(m.type)}</div>
+      <div class="meal-card-fields">
+        <input class="meal-input name" value="${esc(m.name)}" placeholder="Meal name…"
+          oninput="updateMeal(${m.id},'name',this.value)">
+        <input class="meal-input url" value="${esc(m.url||'')}" placeholder="Recipe / delivery link (optional)…"
+          oninput="updateMeal(${m.id},'url',this.value)">
+      </div>
+    </div>
+    <div class="meal-card-footer">
+      ${safeUrl ? `<a class="meal-open-btn" href="${safeUrl}" target="_blank" rel="noopener">🔗 Open</a>` : ''}
+      <button class="meal-del-btn" onclick="deleteMeal(${m.id})">✕ Remove</button>
+    </div>
+  </div>`;
+}
+
+function addMeal(type) {
+  const id = Date.now();
+  mealLibrary.push({ id, name:'', url:'', type });
+  saveMeal();
+  renderMealLib();
+  // focus new card's name input
+  setTimeout(() => {
+    const card = document.getElementById('meal-card-'+id);
+    if (card) card.querySelector('.meal-input.name')?.focus();
+  }, 40);
+}
+
+function updateMeal(id, field, val) {
+  const m = mealLibrary.find(m=>m.id===id);
+  if (m) { m[field]=val; saveMeal(); }
+}
+
+function deleteMeal(id) {
+  if (!confirm('Remove this meal from your library?')) return;
+  mealLibrary = mealLibrary.filter(m=>m.id!==id);
+  // Remove from all day plans
+  Object.values(mealPlan).forEach(day => {
+    MEAL_TYPES.forEach(mt => { if (day[mt.value]===id) day[mt.value]=null; });
+  });
+  saveMeal();
+  renderMealLib();
+  renderMealWeek();
+}
+
+// ── Week Plan ──
+function renderMealWeek() {
+  const grid = document.getElementById('meal-week-grid');
+  if (!grid) return;
+  const today = fmt(new Date());
+  // Build 7 days starting from current Monday
+  const now = new Date();
+  const dow = (now.getDay()+6)%7; // 0=Mon
+  const monday = new Date(now); monday.setDate(now.getDate()-dow);
+
+  let html = '';
+  for (let d=0; d<7; d++) {
+    const dt = new Date(monday); dt.setDate(monday.getDate()+d);
+    const ds = fmt(dt);
+    const isToday = ds===today;
+    const dayName = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d];
+    const dateLabel = dt.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const dayMeals = mealPlan[ds] || {};
+
+    const slots = MEAL_TYPES.map(mt => {
+      const selId = dayMeals[mt.value] || '';
+      const selMeal = selId ? mealLibrary.find(m=>m.id===selId) : null;
+      const opts = mealLibrary.filter(m=>m.type===mt.value).map(m=>
+        `<option value="${m.id}" ${selId===m.id?'selected':''}>${esc(m.name||'(unnamed)')}</option>`
+      ).join('');
+      const safeUrl = selMeal?.url ? (selMeal.url.startsWith('http')?selMeal.url:'https://'+selMeal.url) : null;
+      return `<div class="meal-slot-label">${mt.icon} ${mt.label}</div>
+        <select class="meal-day-sel" onchange="setMealPlan('${ds}','${mt.value}',this.value)">
+          <option value="">— none —</option>
+          ${opts}
+        </select>
+        ${selMeal ? `<div class="meal-day-preview">${safeUrl ? `<a href="${safeUrl}" target="_blank" rel="noopener">🔗 ${esc(selMeal.name)}</a>` : `<span style="color:#7c2d12">${esc(selMeal.name)}</span>`}</div>` : ''}`;
+    }).join('');
+
+    html += `<div class="meal-day-col ${isToday?'today':''}">
+      <div class="meal-day-head">
+        <div class="mdh-name">${dayName}</div>
+        <div class="mdh-date">${dateLabel}</div>
+      </div>
+      <div class="meal-day-body">${slots}</div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function setMealPlan(ds, slot, mealIdStr) {
+  if (!mealPlan[ds]) mealPlan[ds] = {};
+  mealPlan[ds][slot] = mealIdStr ? parseInt(mealIdStr) : null;
+  saveMeal();
+  renderMealWeek();
+  renderWeek(); // refresh day cards
+}
+
+// ── Day column meal card (shown in planner view) ──
+function dayMealCardHtml(ds) {
+  const day = mealPlan[ds];
+  if (!day) return '';
+  const rows = MEAL_TYPES.map(mt => {
+    const meal = day[mt.value] ? mealLibrary.find(m=>m.id===day[mt.value]) : null;
+    if (!meal) return '';
+    const safeUrl = meal.url ? (meal.url.startsWith('http')?meal.url:'https://'+meal.url) : null;
+    return `<div class="day-meal-row" style="${safeUrl?'cursor:pointer':''}" onclick="${safeUrl?`window.open('${safeUrl}','_blank')`:''}">
+      <div class="dmc-icon">${mt.icon}</div>
+      <div class="dmc-info">
+        <div class="dmc-label">${mt.label}</div>
+        <div class="dmc-name">${esc(meal.name||'Meal')}</div>
+      </div>
+      ${safeUrl ? `<a class="dmc-play" href="${safeUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">▶</a>` : ''}
+    </div>`;
+  }).join('');
+  if (!rows.trim()) return '';
+  return `<hr class="sec-divider">
+    <div class="day-meal-section">
+      <div class="sec-label">🍽️ Meals</div>
+      ${rows}
+    </div>`;
+}
+
+// ── Shopping list ──────────────────────────────────────────────────────────
+const SHOP_SECTIONS = [
+  // Groceries
+  { id:'produce',   name:'Fresh Produce',          icon:'🥑', group:'groceries', groupLabel:'🛒 Groceries', wide:false },
+  { id:'dairy',     name:'Dairy, Eggs & Protein',  icon:'🥛', group:'groceries', groupLabel:null, wide:false },
+  { id:'grains',    name:'Grains, Pantry & Spices',icon:'🌾', group:'groceries', groupLabel:null, wide:false },
+  { id:'snacks',    name:'Snacks & Drinks',         icon:'🧃', group:'groceries', groupLabel:null, wide:false },
+  // Home
+  { id:'kitchen',   name:'Kitchen Essentials',     icon:'🍽️', group:'household', groupLabel:'🏠 Home & Living', wide:false },
+  { id:'bedroom',   name:'Bedroom',                icon:'🛏️', group:'household', groupLabel:null, wide:false },
+  { id:'bathroom',  name:'Bathroom',               icon:'🚿', group:'household', groupLabel:null, wide:false },
+  { id:'living',    name:'Home & Living',           icon:'🛋️', group:'household', groupLabel:null, wide:false },
+  // Cleaning
+  { id:'cleaning',  name:'Cleaning Supplies',      icon:'🧹', group:'cleaning',  groupLabel:'🧹 Cleaning & Laundry', wide:false },
+  { id:'laundry',   name:'Laundry & Fabric Care',  icon:'🧺', group:'cleaning',  groupLabel:null, wide:false },
+  // Health & Beauty
+  { id:'health',    name:'Health & Medicines',     icon:'💊', group:'health',    groupLabel:'💊 Health & Beauty', wide:false },
+  { id:'skincare',  name:'Skincare & Suncare',     icon:'✨', group:'health',    groupLabel:null, wide:false },
+  { id:'haircare',  name:'Hair Care',              icon:'💇', group:'health',    groupLabel:null, wide:false },
+  // Fashion
+  { id:'clothes',   name:'Clothes & Workwear',     icon:'👗', group:'fashion',   groupLabel:'👗 Fashion & Style', wide:false },
+  { id:'accessories',name:'Accessories & Jewellery',icon:'💎', group:'fashion',  groupLabel:null, wide:false },
+  // Work & Tech
+  { id:'work',      name:'Work & Tech',            icon:'💻', group:'work',      groupLabel:'💻 Work & Tech', wide:false },
+  // Misc
+  { id:'wishlist',  name:'Wish List ⭐',           icon:'⭐', group:'misc',      groupLabel:'⭐ Wish List', wide:false },
+  { id:'misc',      name:'Miscellaneous',          icon:'📦', group:'misc',      groupLabel:null, wide:false },
+];
+
+// Pre-populated items (Mumbai corporate girlie essentials)
+const SHOP_DEFAULTS = {
+  produce:  [
+    'Tomatoes','Onions','Garlic','Ginger','Spinach / Palak','Cucumber','Lemons','Green chillies',
+    'Coriander (dhania)','Potatoes','Bananas','Seasonal fruits','Baby carrots (snack)',
+  ],
+  dairy:    [
+    'Full-fat milk (1L)','Curd / Yoghurt','Paneer','Butter (Amul)','Eggs (half dozen)',
+    'Amul cheese slices','Whey protein powder',
+  ],
+  grains:   [
+    'Basmati rice','Toor dal','Moong dal','Wheat atta','Poha','Oats (Quaker)',
+    'Brown bread','Olive oil','Coconut oil','Peanut butter','Honey',
+    'Turmeric','Cumin seeds','Coriander powder','Red chilli powder','Garam masala',
+    'Salt','Sugar','Soy sauce / Sriracha',
+  ],
+  snacks:   [
+    'Chai (Tata / Taj Mahal)','Instant coffee / Nescafé','Green tea bags',
+    'Roasted makhana','Mixed nuts','Dark chocolate (70%+)','Protein bars',
+    'Crackers / rice cakes','Coconut water (Tetra pack)',
+  ],
+  kitchen:  [
+    'Non-stick frying pan','Pressure cooker','Tawa','Kadai','Mixing bowls set',
+    'Sharp chef\'s knife','Cutting board (veg)','Cutting board (non-veg)',
+    'Spatula + ladle set','Airtight containers (set of 4)','Steel dabba set',
+    'Water bottles × 2','Coffee mug','Kettle','Mixer grinder',
+  ],
+  bedroom:  [
+    'Good bedsheet set (2)','Extra pillow covers','Blackout curtains (Mumbai sun!)',
+    'Wooden hangers (12–15)','Closet organizer','Storage boxes','Bedside lamp',
+    'Full-length mirror','Under-bed storage',
+  ],
+  bathroom: [
+    'Toilet brush & holder','Shower caddy / shelf','Bath mat','Extra towels × 2',
+    'Toilet rolls (stock up!)','Toiletry organizer','Bathroom dustbin',
+  ],
+  living:   [
+    'Surge-protected extension board','Air freshener / reed diffuser',
+    'Mosquito repellent liquid (Mortein – essential Mumbai!)','Mosq. coils (backup)',
+    'Basic toolkit (screwdriver, hammer)','Spare bulbs','Dustbin (with lid)',
+  ],
+  cleaning: [
+    'Floor cleaner (Lizol / Dettol)','Toilet cleaner (Harpic)','Bathroom spray',
+    'Kitchen degreaser','Glass cleaner (Colin)','Dishwashing liquid (Vim)',
+    'Scrubbers & sponges × 3','Microfiber cloths (4 pack)','Garbage bags (S + L)',
+    'Broom + dustpan','Mop + bucket',
+  ],
+  laundry:  [
+    'Laundry detergent (Ariel / Surf Excel)','Fabric softener (Comfort)',
+    'Stain remover pen','Dry-clean garment bags','Drying rack','Lint roller',
+  ],
+  health:   [
+    'Paracetamol (Dolo 650 / Crocin)','Antacid (Gelusil / ENO – Mumbai food!)','ORS sachets (Electral)',
+    'Band-aids + Savlon antiseptic','Period pain relief (Meftal-Spas)','Sanitary pads / tampons',
+    'Vitamin D3 supplements','Vitamin B12 supplements','Iron supplements','Multivitamin',
+    'Probiotic capsules','Eye drops (dry AC eyes)',
+  ],
+  skincare: [
+    'Gentle face wash (humidity-proof)','SPF 50+ sunscreen (non-negotiable Mumbai!)',
+    'Moisturizer with SPF','Vitamin C serum','Toner / essence','Retinol / night cream',
+    'Under-eye cream','Body lotion','Micellar water / makeup remover',
+    'Sheet masks (box)','Lip balm with SPF','Pore strips',
+  ],
+  haircare: [
+    'Shampoo (sulphate-free)','Conditioner','Hair mask (weekly)','Coconut / argan oil',
+    'Leave-in serum','Wide-tooth comb','Heat protectant spray',
+    'Dry shampoo (life saver for commute!)','Hair ties + clips (bulk)',
+  ],
+  clothes:  [
+    '2–3 structured blazers (neutral)','Formal trousers × 2','Work blouses / shirts × 4',
+    'One formal dress (navy / black)','One good saree + pre-stitched blouse',
+    'Casual jeans × 2','Casual tops × 4','Lounge / pyjama set',
+    'Good sneakers','Block heels for office','Ballet flats','Ethnic kolhapuris',
+    'Activewear set (for gym days)','Swimsuit (beach trips!)',
+  ],
+  accessories:[
+    'Classic watch','Everyday stud earrings (gold)','Statement earrings × 2',
+    'Thin gold / silver chain','Sunglasses (UV400 – Mumbai sun!)',
+    'Formal handbag (black or tan)','Everyday tote / laptop bag',
+    'Scarves / stoles (AC office survival)','Belts × 2','Hair accessories set',
+  ],
+  work:     [
+    'Noise-cancelling earphones / headphones','Power bank 10 000 mAh+ (commute lifesaver)',
+    'Laptop stand','Bluetooth keyboard + mouse','Desk organizer / cable tray',
+    'USB-C hub / adapter','Blue-light glasses','Good quality notebook','Sticky notes (Post-its)',
+    'Planner / diary','Pen set','Webcam cover sticker',
+  ],
+  wishlist: [],
+  misc:     [],
+};
+
+const SHOP_LIB_VERSION = '3';
+
+function getAllSections() {
+  const custom = shopData.__custom__ || [];
+  return [...SHOP_SECTIONS, ...custom];
+}
+function getAllGroups() {
+  const customCats = shopData.__categories__ || [];
+  return [...SHOP_GROUPS, ...customCats];
+}
+let shopData   = {};
+let shopFilter = 'all';
+let shopOpen   = false;
+
+function saveShop() {
+  localStorage.setItem('wp3_shop',     JSON.stringify(shopData));
+  localStorage.setItem('wp3_shop_ver', SHOP_LIB_VERSION);
+}
+function loadShop() {
+  const ver = localStorage.getItem('wp3_shop_ver');
+  if (ver !== SHOP_LIB_VERSION) {
+    shopData = {};
+    // Seed defaults
+    SHOP_SECTIONS.forEach(s => {
+      shopData[s.id] = (SHOP_DEFAULTS[s.id] || []).map((t,i) => ({
+        id: Date.now()+i, text:t, done:false, qty:'', url:''
+      }));
+    });
+    saveShop();
+  } else {
+    try { shopData = JSON.parse(localStorage.getItem('wp3_shop')) || {}; } catch(e){ shopData={}; }
+    SHOP_SECTIONS.forEach(s => { if (!shopData[s.id]) shopData[s.id] = []; });
+    if (!shopData.__custom__) shopData.__custom__ = [];
+    if (!shopData.__categories__) shopData.__categories__ = [];
+  }
+}
+
+// ── Panel toggle ──
+function toggleShopPanel() {
+  shopOpen = !shopOpen;
+  const panel  = document.getElementById('shop-panel');
+  const layout = document.getElementById('main-layout');
+  const woPanel= document.getElementById('wo-panel');
+  const btn    = document.getElementById('shop-toggle-btn');
+  const woBtn  = document.getElementById('wo-toggle-btn');
+  if (shopOpen) {
+    if (woPanelOpen)  { woPanelOpen=false;  woPanel.classList.remove('open'); woBtn.classList.remove('wo-active'); }
+    if (mealPanelOpen){ mealPanelOpen=false; document.getElementById('meal-panel').classList.remove('open'); document.getElementById('meal-toggle-btn').classList.remove('wo-active'); }
+    panel.classList.add('open');
+    layout.style.display = 'none';
+    btn.classList.add('wo-active');
+    renderShopGrid();
+  } else {
+    panel.classList.remove('open');
+    layout.style.display = 'flex';
+    btn.classList.remove('wo-active');
+  }
+}
+
+function setShopFilter(f, el) {
+  shopFilter = f;
+  document.querySelectorAll('.shop-filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderShopGrid();
+}
+
+// ── Stats update ──
+function updateShopStats() {
+  let total=0, done=0, links=0;
+  SHOP_SECTIONS.forEach(s => (shopData[s.id]||[]).forEach(i => {
+    total++; if(i.done) done++; if(i.url) links++;
+  }));
+  const t=document.getElementById('sh-total'), d=document.getElementById('sh-done'), l=document.getElementById('sh-links');
+  if(t) t.textContent=total; if(d) d.textContent=done; if(l) l.textContent=links;
+}
+
+// ── Render ──
+function shopColHtml(sec) {
+  const items = shopData[sec.id] || [];
+  const done  = items.filter(i=>i.done).length;
+  const total = items.length;
+
+  const itemsHtml = items.map((item, idx) => {
+    const hasUrl  = !!(item.url && item.url.trim());
+    const safeUrl = hasUrl ? (item.url.startsWith('http') ? item.url : 'https://'+item.url) : '';
+    return `<div class="shop-item-wrap">
+      <div class="shop-item">
+        <input type="checkbox" ${item.done?'checked':''} onchange="toggleShopItem('${sec.id}',${idx},this.checked)">
+        <input class="shop-item-text${item.done?' done-text':''}" value="${esc(item.text)}"
+          placeholder="Add item…"
+          oninput="setShopItemText('${sec.id}',${idx},this.value)"
+          onkeydown="if(event.key==='Enter'){addShopItem('${sec.id}');event.preventDefault()}">
+        <input class="shop-item-qty" value="${esc(item.qty||'')}" placeholder="qty"
+          oninput="setShopItemQty('${sec.id}',${idx},this.value)">
+        <button class="shop-link-btn${hasUrl?' has-link':''}"
+          onclick="${hasUrl ? `window.open('${safeUrl.replace(/'/g,"\\'")}','_blank')` : `toggleShopUrl('${sec.id}',${idx})`}"
+          title="${hasUrl?'Open product link':'Add product link'}">${hasUrl?'🛍️':'🔗'}</button>
+        <button class="shop-item-del" onclick="delShopItem('${sec.id}',${idx})">×</button>
+      </div>
+      <div class="shop-url-row" id="surl-${sec.id}-${idx}">
+        <input class="shop-url-input" value="${esc(item.url||'')}"
+          placeholder="Paste product URL (Amazon, Myntra, Nykaa…)"
+          oninput="setShopItemUrl('${sec.id}',${idx},this.value)"
+          onkeydown="if(event.key==='Enter'||event.key==='Escape')this.closest('.shop-url-row').classList.remove('open')">
+        ${hasUrl?`<a class="shop-url-open-btn" href="${safeUrl}" target="_blank" rel="noopener">Open ↗</a>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const isCustom = sec.id.startsWith('custom_');
+  return `<div class="shop-col">
+    <div class="shop-col-header">
+      <div class="shop-col-icon">${sec.icon}</div>
+      <div class="shop-col-name">${sec.name}</div>
+      ${total>0?`<div class="shop-col-badge ${done>0?'has-done':'none-done'}">${done}/${total}</div>`:''}
+      ${done>0?`<button class="shop-col-clear" onclick="clearDoneShop('${sec.id}')">✓ clear</button>`:''}
+      ${isCustom?`<button class="shop-col-del" onclick="deleteCustomSection('${sec.id}')" title="Delete section">×</button>`:''}
+    </div>
+    <div class="shop-col-items" id="scol-${sec.id}">${itemsHtml}</div>
+    <div class="shop-col-footer">
+      <button class="shop-add-item-btn" onclick="addShopItem('${sec.id}')">＋ Add item</button>
+    </div>
+  </div>`;
+}
+
+const SHOP_GROUPS = [
+  { key:'groceries', label:'🛒 Groceries' },
+  { key:'household', label:'🏠 Home & Living' },
+  { key:'cleaning',  label:'🧹 Cleaning & Laundry' },
+  { key:'health',    label:'💊 Health & Beauty' },
+  { key:'fashion',   label:'👗 Fashion & Style' },
+  { key:'work',      label:'💻 Work & Tech' },
+  { key:'misc',      label:'⭐ Wish List & More' },
+];
+
+function renderShopGrid() {
+  const container = document.getElementById('shop-grid');
+  if (!container) return;
+  renderShopFilterButtons();
+
+  const allSecs = getAllSections();
+  const allGroups = getAllGroups();
+  const activeSecs = shopFilter === 'all' ? allSecs : allSecs.filter(s => s.group === shopFilter);
+  const activeGroups = shopFilter === 'all' ? allGroups : allGroups.filter(g => g.key === shopFilter);
+
+  let html = '';
+  activeGroups.forEach(g => {
+    const secs = activeSecs.filter(s => s.group === g.key);
+    const isCustomCat = !SHOP_GROUPS.find(sg => sg.key === g.key);
+    html += `<div class="shop-group">
+      <div class="shop-group-label">${g.label}${isCustomCat ? ` <button class="shop-cat-del" onclick="deleteCustomCategory('${g.key}')" title="Delete category">✕</button>` : ''}</div>
+      <div class="shop-group-scroll">
+        ${secs.map(s => shopColHtml(s)).join('')}
+        <div class="shop-add-col-card" onclick="openNewSectionModal('${g.key}')">
+          <div class="sacc-icon">＋</div>
+          <div class="sacc-label">New section</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+  updateShopStats();
+}
+
+// ── New section modal ──
+let _nsmGroup = 'misc';
+
+function openNewSectionModal(groupKey) {
+  _nsmGroup = groupKey || 'misc';
+  // Rebuild select with built-in + custom categories
+  const sel = document.getElementById('nsm-group');
+  const allGroups = getAllGroups();
+  sel.innerHTML = allGroups.map(g =>
+    `<option value="${g.key}">${g.label}</option>`
+  ).join('');
+  sel.value = _nsmGroup;
+  document.getElementById('nsm-name').value  = '';
+  document.getElementById('nsm-icon').value  = '';
+  document.getElementById('nsm-backdrop').style.display = 'block';
+  document.getElementById('nsm-box').style.display      = 'block';
+  setTimeout(()=>document.getElementById('nsm-icon').focus(), 30);
+}
+
+function closeNewSectionModal() {
+  document.getElementById('nsm-backdrop').style.display = 'none';
+  document.getElementById('nsm-box').style.display      = 'none';
+}
+
+function createNewSection() {
+  const name  = document.getElementById('nsm-name').value.trim();
+  const icon  = document.getElementById('nsm-icon').value.trim() || '📋';
+  const group = document.getElementById('nsm-group').value;
+  if (!name) { document.getElementById('nsm-name').focus(); return; }
+
+  const id = 'custom_' + Date.now();
+  if (!shopData.__custom__) shopData.__custom__ = [];
+  shopData.__custom__.push({ id, name, icon, group });
+  shopData[id] = [];
+  saveShop();
+  closeNewSectionModal();
+  renderShopGrid();
+}
+
+function deleteCustomSection(id) {
+  if (!confirm('Delete this section and all its items?')) return;
+  shopData.__custom__ = (shopData.__custom__ || []).filter(s => s.id !== id);
+  delete shopData[id];
+  saveShop();
+  renderShopGrid();
+}
+
+// ── New category modal ──
+function openNewCategoryModal() {
+  document.getElementById('ncm-name').value = '';
+  document.getElementById('ncm-icon').value = '';
+  document.getElementById('ncm-backdrop').style.display = 'block';
+  document.getElementById('ncm-box').style.display      = 'block';
+  setTimeout(()=>document.getElementById('ncm-icon').focus(), 30);
+}
+function closeNewCategoryModal() {
+  document.getElementById('ncm-backdrop').style.display = 'none';
+  document.getElementById('ncm-box').style.display      = 'none';
+}
+function createNewCategory() {
+  const name = document.getElementById('ncm-name').value.trim();
+  const icon = document.getElementById('ncm-icon').value.trim() || '🗂️';
+  if (!name) { document.getElementById('ncm-name').focus(); return; }
+  const key = 'cat_' + Date.now();
+  const label = icon + ' ' + name;
+  if (!shopData.__categories__) shopData.__categories__ = [];
+  shopData.__categories__.push({ key, label });
+  saveShop();
+  closeNewCategoryModal();
+  // Add filter button to toolbar
+  renderShopFilterButtons();
+  renderShopGrid();
+}
+function deleteCustomCategory(key) {
+  if (!confirm('Delete this category and all its sections?')) return;
+  // Remove category
+  shopData.__categories__ = (shopData.__categories__ || []).filter(c => c.key !== key);
+  // Remove all custom sections belonging to this category
+  const toRemove = (shopData.__custom__ || []).filter(s => s.group === key);
+  shopData.__custom__ = (shopData.__custom__ || []).filter(s => s.group !== key);
+  toRemove.forEach(s => delete shopData[s.id]);
+  // Reset filter if we deleted the active one
+  if (shopFilter === key) shopFilter = 'all';
+  saveShop();
+  renderShopFilterButtons();
+  renderShopGrid();
+}
+function renderShopFilterButtons() {
+  // Re-render custom category filter buttons (appended dynamically after static ones)
+  const toolbar = document.querySelector('.shop-toolbar');
+  if (!toolbar) return;
+  // Remove existing custom-cat filter buttons
+  toolbar.querySelectorAll('.shop-filter-btn.custom-cat').forEach(b => b.remove());
+  // Insert before clear-done button
+  const clearBtn = toolbar.querySelector('.shop-clear-all-btn');
+  (shopData.__categories__ || []).forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'shop-filter-btn custom-cat' + (shopFilter === cat.key ? ' active' : '');
+    btn.textContent = cat.label;
+    btn.onclick = function() { setShopFilter(cat.key, this); };
+    toolbar.insertBefore(btn, clearBtn);
+  });
+}
+
+function toggleShopUrl(secId, idx) {
+  const row = document.getElementById(`surl-${secId}-${idx}`);
+  if (!row) return;
+  row.classList.toggle('open');
+  if (row.classList.contains('open')) {
+    setTimeout(() => row.querySelector('input')?.focus(), 30);
+  }
+}
+
+function addShopItem(secId) {
+  if (!shopData[secId]) shopData[secId] = [];
+  shopData[secId].push({ id:Date.now(), text:'', done:false, qty:'', url:'' });
+  saveShop();
+  renderShopGrid();
+  setTimeout(() => {
+    const col = document.getElementById(`scol-${secId}`);
+    if (!col) return;
+    const inputs = col.querySelectorAll('.shop-item-text');
+    if (inputs.length) inputs[inputs.length-1].focus();
+  }, 30);
+}
+
+function toggleShopItem(secId, idx, done) {
+  if (shopData[secId]?.[idx] !== undefined) {
+    shopData[secId][idx].done = done;
+    saveShop(); renderShopGrid();
+  }
+}
+
+function setShopItemText(secId, idx, val) {
+  if (shopData[secId]?.[idx]) { shopData[secId][idx].text = val; saveShop(); }
+}
+function setShopItemQty(secId, idx, val) {
+  if (shopData[secId]?.[idx]) { shopData[secId][idx].qty = val; saveShop(); }
+}
+function setShopItemUrl(secId, idx, val) {
+  if (shopData[secId]?.[idx]) { shopData[secId][idx].url = val; saveShop(); }
+}
+
+function delShopItem(secId, idx) {
+  shopData[secId]?.splice(idx, 1);
+  saveShop(); renderShopGrid();
+}
+
+function clearDoneShop(secId) {
+  if (shopData[secId]) {
+    shopData[secId] = shopData[secId].filter(i => !i.done);
+    saveShop(); renderShopGrid();
+  }
+}
+
+function clearAllDoneShop() {
+  SHOP_SECTIONS.forEach(s => {
+    if (shopData[s.id]) shopData[s.id] = shopData[s.id].filter(i => !i.done);
+  });
+  saveShop(); renderShopGrid();
+}
+
+// ── Pokémon Habit Evolution ────────────────────────────────────────────────
+// Each habit slot (index 0-7+) maps to a Pokémon evolution chain.
+// Completion counts are stored globally; stage advances every 3 and 7 completions.
+const POKE_CHAINS = [
+  [4,   5,   6  ], // Charmander → Charmeleon → Charizard
+  [7,   8,   9  ], // Squirtle   → Wartortle  → Blastoise
+  [1,   2,   3  ], // Bulbasaur  → Ivysaur    → Venusaur
+  [147, 148, 149], // Dratini    → Dragonair  → Dragonite
+  [129, 130, 130], // Magikarp   → Gyarados
+  [25,  26,  26 ], // Pikachu    → Raichu
+  [39,  40,  40 ], // Jigglypuff → Wigglytuff
+  [63,  64,  65 ], // Abra       → Kadabra    → Alakazam
+  [152, 153, 154], // Chikorita  → Bayleef    → Meganium
+  [155, 156, 157], // Cyndaquil  → Quilava    → Typhlosion
+];
+// Stage thresholds: how many days this week must be checked for each form.
+// Week has 7 days → stage 0: 0-1 checked, stage 1: 2-4 checked, stage 2: 5-7 checked.
+const EVO_STAGE1 = 2;  // first evolution at 2 days checked this week
+const EVO_STAGE2 = 5;  // final evolution at 5 days checked this week
+
+// Count how many days this week have habit slot `hi` checked.
+function getWeeklyHabitCount(hi) {
+  return getWeekDates(weekOffset).reduce((sum, d) => {
+    const day = getDay(fmt(d));
+    return sum + (day.habits[hi]?.done ? 1 : 0);
+  }, 0);
+}
+
+// Stage is derived live from the current week's data — no separate storage needed.
+function getHabitEvoStage(hi) {
+  const c = getWeeklyHabitCount(hi);
+  return c >= EVO_STAGE2 ? 2 : c >= EVO_STAGE1 ? 1 : 0;
+}
+function getPokeId(hi, stage) {
+  const chain = POKE_CHAINS[hi % POKE_CHAINS.length];
+  return chain[Math.min(stage, chain.length - 1)];
+}
+function getPokeUrl(hi, stage) {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${getPokeId(hi, stage)}.png`;
+}
+
+function showEvoToast(hi, toStage, habitName) {
+  const labels = ['','evolved! ✨','reached final form! 🏆'];
+  const old = document.querySelector('.evo-toast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.className = 'evo-toast';
+  const label = habitName ? `"${habitName}" ${labels[toStage]}` : `Habit ${labels[toStage]}`;
+  t.innerHTML = `<img src="${getPokeUrl(hi, toStage)}" style="width:36px;height:36px;image-rendering:pixelated"> ${label}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+
+// ── Recurring Tasks ────────────────────────────────────────────────────────
+// Data: [{id, name, type, frequency, days, everyN, startDate, time, duration, completions:{}}]
+
+let recurTasks = [];
+
+function saveRecur() { localStorage.setItem('wp3_recur', JSON.stringify(recurTasks)); }
+function loadRecur() {
+  try { recurTasks = JSON.parse(localStorage.getItem('wp3_recur')) || []; } catch(e){ recurTasks=[]; }
+}
+
+// ── Occurrence logic ──
+function recurAppliesOnDate(rt, dateStr) {
+  if (dateStr < rt.startDate) return false;
+  const d = new Date(dateStr + 'T00:00:00');
+  const dow = (d.getDay() + 6) % 7; // 0=Mon … 6=Sun
+  switch (rt.frequency) {
+    case 'daily':    return true;
+    case 'weekdays': return dow <= 4; // Mon–Fri
+    case 'weekly':   return (rt.days || []).includes(dow);
+    case 'every-n': {
+      const start = new Date(rt.startDate + 'T00:00:00');
+      const diff = Math.round((d - start) / 86400000);
+      return diff >= 0 && diff % (rt.everyN || 1) === 0;
+    }
+    case 'monthly':  return d.getDate() === new Date(rt.startDate + 'T00:00:00').getDate();
+    case 'bimonthly': {
+      const start = new Date(rt.startDate + 'T00:00:00');
+      const diff = Math.round((d - start) / 86400000);
+      return diff >= 0 && diff % 14 === 0;
+    }
+    default: return false;
+  }
+}
+
+function recurFreqLabel(rt) {
+  switch (rt.frequency) {
+    case 'daily':    return 'Every day';
+    case 'weekdays': return 'Mon – Fri';
+    case 'weekly': {
+      const names = ['M','T','W','T','F','S','S'];
+      return 'Weekly · ' + (rt.days||[]).map(d=>names[d]).join(' ');
+    }
+    case 'every-n':   return `Every ${rt.everyN||2} days`;
+    case 'monthly':   return 'Monthly';
+    case 'bimonthly': return 'Twice a month';
+    default: return rt.frequency;
+  }
+}
+
+// ── Render recurring task rows inside a day column ──
+function dayRecurTasksHtml(ds) {
+  const applicable = recurTasks.filter(rt => {
+    if (!recurAppliesOnDate(rt, ds)) return false;
+    if (appMode === 'work' && rt.type === 'personal') return false;
+    return true;
+  });
+  if (!applicable.length) return '';
+  return applicable.map(rt => {
+    const done = !!(rt.completions && rt.completions[ds]);
+    const dot  = rt.type === 'work' ? '💼' : rt.type === 'personal' ? '🏠' : '🔁';
+    return `<div class="recur-task-row">
+      <input type="checkbox" ${done?'checked':''} onchange="toggleRecurDone('${rt.id}','${ds}',this.checked)">
+      <span class="recur-task-label ${done?'done':''}">${dot} ${esc(rt.name)}<span class="recur-icon">↻</span></span>
+    </div>`;
+  }).join('');
+}
+
+function toggleRecurDone(rtId, ds, checked) {
+  const rt = recurTasks.find(r=>r.id===rtId);
+  if (!rt) return;
+  if (!rt.completions) rt.completions = {};
+  rt.completions[ds] = checked;
+  saveRecur();
+}
+
+// ── Recurring event blocks in schedule ──
+function recurScheduleBlocks(ds) {
+  return recurTasks.filter(rt => {
+    if (!rt.time) return false;
+    if (!recurAppliesOnDate(rt, ds)) return false;
+    if (appMode === 'work' && rt.type === 'personal') return false;
+    return true;
+  }).map(rt => {
+    const typeClass = rt.type === 'work' ? 'type-work' : rt.type === 'personal' ? 'type-personal' : 'type-none';
+    const typeIcon  = rt.type === 'work' ? '💼' : rt.type === 'personal' ? '🏠' : '🔁';
+    const mins   = durToMins(rt.duration) || 30;
+    const top    = timeToTop(rt.time);
+    const height = Math.max(24, (mins / 30) * SLOT_H - 1);
+    const endTime = addMins(rt.time, mins);
+    const showMeta = height >= 44;
+    const done = !!(rt.completions && rt.completions[ds]);
+    return `<div class="sched-event-block ${typeClass} ${done?'done':''}"
+        style="top:${top}px; height:${height}px; opacity:0.85"
+        title="${esc(rt.name)} · ${rt.time}–${endTime} · ↻ Recurring">
+      <div class="sev-title">${typeIcon} ↻ ${esc(rt.name)}</div>
+      ${showMeta ? `<div class="sev-meta">${rt.time} – ${endTime}${rt.duration ? ' · '+rt.duration:''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Sidebar render for recurring section ──
+function fmtShortDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  return d.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+}
+
+function recurSidebarHtml() {
+  const visible = recurTasks.filter(rt => appMode === 'personal' || rt.type !== 'personal');
+  if (!visible.length) return '<div style="font-size:0.75rem;color:#9ca3af;text-align:center;padding:6px 0">No recurring tasks yet</div>';
+  return `<div class="recur-list">${visible.map(rt => {
+    const dotClass  = rt.type || 'none';
+    const timeLabel = rt.time ? `<span class="recur-time-badge">⏰ ${rt.time}${rt.duration?' · '+rt.duration:''}</span>` : '';
+    return `<div class="recur-item">
+      <div class="recur-item-top">
+        <div class="recur-type-dot ${dotClass}"></div>
+        <span class="recur-name">${esc(rt.name||'(untitled)')}</span>
+        <div class="recur-actions">
+          <button class="recur-edit-btn" onclick="openRecurModal('${rt.id}')" title="Edit">✏️</button>
+          <button class="recur-del-btn"  onclick="deleteRecurTask('${rt.id}')" title="Delete">×</button>
+        </div>
+      </div>
+      <div class="recur-item-bottom">
+        <span class="recur-freq">↻ ${recurFreqLabel(rt)} · from ${fmtShortDate(rt.startDate)}</span>
+        ${timeLabel}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function deleteRecurTask(id) {
+  if (!confirm('Delete this recurring task?')) return;
+  recurTasks = recurTasks.filter(r=>r.id!==id);
+  saveRecur();
+  renderSidebar();
+  renderWeek();
+}
+
+// ── Modal state ──
+let _rtmId = null;
+let _rtmType = '';
+let _rtmDays = [];
+
+function openRecurModal(id) {
+  _rtmId = id || null;
+  const rt = id ? recurTasks.find(r=>r.id===id) : null;
+  _rtmType = rt?.type || '';
+  _rtmDays = rt ? [...(rt.days||[])] : [];
+
+  document.getElementById('rtm-name').value    = rt?.name     || '';
+  document.getElementById('rtm-freq').value    = rt?.frequency|| 'daily';
+  document.getElementById('rtm-start').value   = rt?.startDate|| fmt(new Date());
+  document.getElementById('rtm-time').value    = rt?.time     || '';
+  document.getElementById('rtm-dur').value     = rt?.duration || '30m';
+  document.getElementById('rtm-everyn').value  = rt?.everyN   || 2;
+
+  // Type buttons
+  ['none','work','personal'].forEach(t => {
+    document.getElementById('rtm-type-'+t)?.classList.remove('active-work','active-personal');
+  });
+  if (_rtmType === 'work')     document.getElementById('rtm-type-work')    ?.classList.add('active-work');
+  if (_rtmType === 'personal') document.getElementById('rtm-type-personal')?.classList.add('active-personal');
+
+  // Day buttons
+  document.querySelectorAll('.rtm-day-btn').forEach(b => {
+    b.classList.toggle('active', _rtmDays.includes(+b.dataset.d));
+  });
+
+  onRtmFreqChange();
+  onRtmTimeChange();
+
+  document.getElementById('rtm-backdrop').style.display = 'block';
+  document.getElementById('rtm-box').style.display      = 'block';
+  setTimeout(()=>document.getElementById('rtm-name').focus(), 30);
+}
+
+function closeRecurModal() {
+  document.getElementById('rtm-backdrop').style.display = 'none';
+  document.getElementById('rtm-box').style.display      = 'none';
+}
+
+function setRtmType(type) {
+  _rtmType = type;
+  document.getElementById('rtm-type-none')    ?.classList.remove('active-work','active-personal');
+  document.getElementById('rtm-type-work')    ?.classList.remove('active-work','active-personal');
+  document.getElementById('rtm-type-personal')?.classList.remove('active-work','active-personal');
+  if (type === 'work')     document.getElementById('rtm-type-work')    ?.classList.add('active-work');
+  if (type === 'personal') document.getElementById('rtm-type-personal')?.classList.add('active-personal');
+}
+
+function toggleRtmDay(d) {
+  const idx = _rtmDays.indexOf(d);
+  if (idx === -1) _rtmDays.push(d); else _rtmDays.splice(idx, 1);
+  document.querySelectorAll('.rtm-day-btn').forEach(b => {
+    b.classList.toggle('active', _rtmDays.includes(+b.dataset.d));
+  });
+}
+
+function onRtmFreqChange() {
+  const f = document.getElementById('rtm-freq')?.value;
+  document.getElementById('rtm-days-field') .style.display = f === 'weekly'  ? 'block' : 'none';
+  document.getElementById('rtm-everyn-field').style.display = f === 'every-n' ? 'block' : 'none';
+}
+
+function onRtmTimeChange() {
+  const t = document.getElementById('rtm-time')?.value;
+  document.getElementById('rtm-dur-field').style.display = t ? 'block' : 'none';
+}
+
+function saveRecurTask() {
+  const name = document.getElementById('rtm-name').value.trim();
+  if (!name) { document.getElementById('rtm-name').focus(); return; }
+  const freq   = document.getElementById('rtm-freq').value;
+  const start  = document.getElementById('rtm-start').value || fmt(new Date());
+  const time   = document.getElementById('rtm-time').value  || '';
+  const dur    = time ? document.getElementById('rtm-dur').value : '';
+  const everyN = parseInt(document.getElementById('rtm-everyn').value) || 2;
+
+  if (_rtmId) {
+    const rt = recurTasks.find(r=>r.id===_rtmId);
+    if (rt) Object.assign(rt, { name, type:_rtmType, frequency:freq, days:[..._rtmDays], everyN, startDate:start, time, duration:dur });
+  } else {
+    recurTasks.push({ id:'rt_'+Date.now(), name, type:_rtmType, frequency:freq, days:[..._rtmDays], everyN, startDate:start, time, duration:dur, completions:{} });
+  }
+  saveRecur();
+  closeRecurModal();
+  renderSidebar();
+  renderWeek();
+}
+
+// ── App mode (Work / Personal) ─────────────────────────────────────────────
+let appMode = localStorage.getItem('wp3_mode') || 'personal';
+
+function setAppMode(mode) {
+  appMode = mode;
+  localStorage.setItem('wp3_mode', mode);
+  applyMode();
+  renderWeek();
+}
+
+function applyMode() {
+  // Toggle button active states
+  document.getElementById('mode-btn-work')    .classList.toggle('active-work',     appMode==='work');
+  document.getElementById('mode-btn-personal').classList.toggle('active-personal', appMode==='personal');
+  // Show/hide panel buttons (Workouts, Meals, Shopping)
+  document.getElementById('mode-panel-btns').style.display = appMode==='work' ? 'none' : 'flex';
+  // If switching to work and a personal panel is open, close it
+  if (appMode === 'work') {
+    if (woPanelOpen)   toggleWorkoutPanel();
+    if (mealPanelOpen) toggleMealPanel();
+    if (shopOpen)      toggleShopPanel();
+  }
+}
+
+// ── Download (bakes localStorage data into HTML so links survive) ──────────
+function downloadPlanner() {
+  const KEYS = [
+    'wp3_data', 'wp3_week', 'wp3_ideas',
+    'wp3_wo_lib', 'wp3_wo_plan', 'wp3_wo_version',
+    'wp3_meal_lib', 'wp3_meal_plan', 'wp3_meal_ver',
+    'wp3_shop', 'wp3_shop_ver',
+    'wp3_recur', 'wp3_mode', 'wp3_habit_evo'
+  ];
+  const snapshot = {};
+  KEYS.forEach(k => { const v = localStorage.getItem(k); if (v !== null) snapshot[k] = v; });
+
+  const seedScript = `<script>
+(function(){
+  var d=${JSON.stringify(snapshot)};
+  Object.keys(d).forEach(function(k){ if(!localStorage.getItem(k)) localStorage.setItem(k,d[k]); });
+})();
+<\/script>`;
+
+  // Get the raw source HTML (not the live DOM) via fetch so it's the clean file
+  fetch(location.href)
+    .then(r => r.text())
+    .then(html => {
+      // Inject seed script right before </head>
+      const out = html.replace('</head>', seedScript + '\n</head>');
+      const blob = new Blob([out], { type: 'text/html;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const d = new Date();
+      a.download = `weekly-planner-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    })
+    .catch(() => {
+      // Fallback: use live DOM if fetch fails (e.g. opened as file://)
+      const seedScript2 = `<script>(function(){var d=${JSON.stringify(snapshot)};Object.keys(d).forEach(function(k){if(!localStorage.getItem(k))localStorage.setItem(k,d[k]);});})()</` + `script>`;
+      let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      html = html.replace('</head>', seedScript2 + '\n</head>');
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const d = new Date();
+      a.download = `weekly-planner-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    });
+}
+
 // ── Init ───────────────────────────────────────────────────────────────────
 loadWo();
+loadMeal();
+loadShop();
+loadRecur();
 load();
 loadIdeas();
+applyMode();
 renderWeek();
 updateFabCount();
 </script>
+
+<!-- ── New Section Modal ── -->
+<div id="nsm-backdrop" class="nsm-backdrop" style="display:none" onclick="closeNewSectionModal()"></div>
+<div id="nsm-box" class="nsm-box" style="display:none">
+  <h3>➕ New Section</h3>
+  <div class="nsm-field">
+    <div class="nsm-label">Icon &amp; Name</div>
+    <div class="nsm-row">
+      <input class="nsm-input icon-input" id="nsm-icon" placeholder="🏷️" maxlength="2">
+      <input class="nsm-input" id="nsm-name" placeholder="e.g. Baby Products, Pet Supplies…"
+        onkeydown="if(event.key==='Enter')createNewSection()">
+    </div>
+  </div>
+  <div class="nsm-field">
+    <div class="nsm-label">Category</div>
+    <select class="nsm-select" id="nsm-group">
+      <option value="groceries">🛒 Groceries</option>
+      <option value="household">🏠 Home &amp; Living</option>
+      <option value="cleaning">🧹 Cleaning &amp; Laundry</option>
+      <option value="health">💊 Health &amp; Beauty</option>
+      <option value="fashion">👗 Fashion &amp; Style</option>
+      <option value="work">💻 Work &amp; Tech</option>
+      <option value="misc">⭐ Wish List &amp; More</option>
+    </select>
+  </div>
+  <div class="nsm-actions">
+    <button class="nsm-create-btn" onclick="createNewSection()">Create Section</button>
+    <button class="nsm-cancel-btn" onclick="closeNewSectionModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- New Category Modal -->
+<div id="ncm-backdrop" class="nsm-backdrop" style="display:none" onclick="closeNewCategoryModal()"></div>
+<div id="ncm-box" class="nsm-box" style="display:none">
+  <h3>🗂️ New Category</h3>
+  <div class="nsm-field">
+    <div class="nsm-label">Icon &amp; Name</div>
+    <div class="nsm-row">
+      <input class="nsm-input icon-input" id="ncm-icon" placeholder="🏷️" maxlength="2">
+      <input class="nsm-input" id="ncm-name" placeholder="e.g. Baby, Pets, Garden…"
+        onkeydown="if(event.key==='Enter')createNewCategory()">
+    </div>
+  </div>
+  <div class="nsm-actions">
+    <button class="nsm-create-btn" onclick="createNewCategory()">Create Category</button>
+    <button class="nsm-cancel-btn" onclick="closeNewCategoryModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Recurring Task Modal -->
+<div id="rtm-backdrop" class="rtm-backdrop" style="display:none" onclick="closeRecurModal()"></div>
+<div id="rtm-box" class="rtm-box" style="display:none">
+  <h3>🔁 Recurring Task</h3>
+
+  <div class="rtm-field">
+    <div class="rtm-label">Task Name</div>
+    <input class="rtm-input" id="rtm-name" placeholder="e.g. Morning journaling, Team standup…"
+      onkeydown="if(event.key==='Enter')saveRecurTask()">
+  </div>
+
+  <div class="rtm-field">
+    <div class="rtm-label">Type</div>
+    <div class="rtm-type-row">
+      <button class="rtm-type-btn" id="rtm-type-none"     onclick="setRtmType('')">📌 None</button>
+      <button class="rtm-type-btn" id="rtm-type-work"     onclick="setRtmType('work')">💼 Work</button>
+      <button class="rtm-type-btn" id="rtm-type-personal" onclick="setRtmType('personal')">🏠 Personal</button>
+    </div>
+  </div>
+
+  <div class="rtm-field">
+    <div class="rtm-label">Frequency</div>
+    <select class="rtm-select" id="rtm-freq" onchange="onRtmFreqChange()">
+      <option value="daily">Daily</option>
+      <option value="weekdays">Weekdays (Mon–Fri)</option>
+      <option value="weekly">Weekly — specific days</option>
+      <option value="every-n">Every N days</option>
+      <option value="monthly">Monthly</option>
+      <option value="bimonthly">Twice a month (every 2 weeks)</option>
+    </select>
+  </div>
+
+  <!-- Weekly day picker (shown only for weekly) -->
+  <div class="rtm-field" id="rtm-days-field" style="display:none">
+    <div class="rtm-label">Repeat on</div>
+    <div class="rtm-days-row">
+      <button class="rtm-day-btn" data-d="0" onclick="toggleRtmDay(0)">M</button>
+      <button class="rtm-day-btn" data-d="1" onclick="toggleRtmDay(1)">T</button>
+      <button class="rtm-day-btn" data-d="2" onclick="toggleRtmDay(2)">W</button>
+      <button class="rtm-day-btn" data-d="3" onclick="toggleRtmDay(3)">T</button>
+      <button class="rtm-day-btn" data-d="4" onclick="toggleRtmDay(4)">F</button>
+      <button class="rtm-day-btn" data-d="5" onclick="toggleRtmDay(5)">S</button>
+      <button class="rtm-day-btn" data-d="6" onclick="toggleRtmDay(6)">S</button>
+    </div>
+  </div>
+
+  <!-- Every N days picker -->
+  <div class="rtm-field" id="rtm-everyn-field" style="display:none">
+    <div class="rtm-label">Every how many days?</div>
+    <input class="rtm-input" id="rtm-everyn" type="number" min="2" max="90" value="2" style="width:100px">
+  </div>
+
+  <div class="rtm-row">
+    <div class="rtm-field">
+      <div class="rtm-label">Start Date</div>
+      <input class="rtm-input" id="rtm-start" type="date">
+    </div>
+    <div class="rtm-field">
+      <div class="rtm-label">Time (optional)</div>
+      <input class="rtm-input" id="rtm-time" type="time" oninput="onRtmTimeChange()">
+    </div>
+  </div>
+
+  <div class="rtm-field" id="rtm-dur-field" style="display:none">
+    <div class="rtm-label">Duration</div>
+    <select class="rtm-select" id="rtm-dur">
+      <option value="15m">15 min</option>
+      <option value="30m" selected>30 min</option>
+      <option value="45m">45 min</option>
+      <option value="1h">1 hour</option>
+      <option value="1.5h">1.5 hours</option>
+      <option value="2h">2 hours</option>
+    </select>
+  </div>
+
+  <div class="rtm-actions">
+    <button class="rtm-save-btn" onclick="saveRecurTask()">Save</button>
+    <button class="rtm-cancel-btn" onclick="closeRecurModal()">Cancel</button>
+  </div>
+</div>
 </body>
 </html>
