@@ -389,7 +389,19 @@
     text-transform: uppercase; letter-spacing: 0.8px;
     color: var(--muted); margin-bottom: 5px;
     display: flex; align-items: center; gap: 4px;
+    cursor: pointer; user-select: none;
+    justify-content: space-between;
+    padding: 1px 0;
   }
+  .sec-label:hover { color: var(--primary); }
+  .sec-chevron { font-size: 0.7rem; transition: transform 0.2s ease; display: inline-block; }
+  .sec-label.sec-collapsed .sec-chevron { transform: rotate(-90deg); }
+  .sec-body {
+    display: grid; grid-template-rows: 1fr;
+    transition: grid-template-rows 0.22s ease;
+  }
+  .sec-body.sec-collapsed { grid-template-rows: 0fr; }
+  .sec-body-inner { overflow: hidden; }
 
   .intention-input {
     width: 100%; border: 1px solid var(--border); border-radius: 8px;
@@ -2247,44 +2259,71 @@ function renderWeek() {
       </div>
       <div class="day-body">
         <div>
-          <div class="sec-label">💡 Intention</div>
-          <textarea class="intention-input" rows="2" placeholder="Today I will focus on…"
-            data-ds="${ds}" oninput="setIntention(this)">${esc(day.intention)}</textarea>
+          <div class="sec-label ${sectionCollapsed.intention?'sec-collapsed':''}" data-sec="intention" onclick="toggleSection('intention')">
+            💡 Intention <span class="sec-chevron">▾</span>
+          </div>
+          <div class="sec-body ${sectionCollapsed.intention?'sec-collapsed':''}" data-sec="intention">
+            <div class="sec-body-inner">
+              <textarea class="intention-input" rows="2" placeholder="Today I will focus on…"
+                data-ds="${ds}" oninput="setIntention(this)">${esc(day.intention)}</textarea>
+            </div>
+          </div>
         </div>
         <div>
-          <div class="sec-label">🎯 Top 3 Priorities</div>
-          ${day.priorities.map((p,pi)=>`
-          <div class="pri-item">
-            <div class="pri-num">${pi+1}</div>
-            <input class="pri-text" value="${esc(p.text)}" placeholder="Priority ${pi+1}…"
-              data-ds="${ds}" data-pi="${pi}" oninput="setPriority(this)">
-            <input type="checkbox" ${p.done?'checked':''} data-ds="${ds}" data-pi="${pi}" onchange="togglePri(this)">
-          </div>`).join('')}
-        </div>
-        <hr class="sec-divider">
-        <div>
-          <div class="sec-label">⏰ Schedule</div>
-          <div class="schedule-wrap" id="sched-wrap-${ds}">
-            ${renderScheduleSlots(ds)}
+          <div class="sec-label ${sectionCollapsed.priorities?'sec-collapsed':''}" data-sec="priorities" onclick="toggleSection('priorities')">
+            🎯 Top 3 Priorities <span class="sec-chevron">▾</span>
+          </div>
+          <div class="sec-body ${sectionCollapsed.priorities?'sec-collapsed':''}" data-sec="priorities">
+            <div class="sec-body-inner">
+              ${day.priorities.map((p,pi)=>`
+              <div class="pri-item">
+                <div class="pri-num">${pi+1}</div>
+                <input class="pri-text" value="${esc(p.text)}" placeholder="Priority ${pi+1}…"
+                  data-ds="${ds}" data-pi="${pi}" oninput="setPriority(this)">
+                <input type="checkbox" ${p.done?'checked':''} data-ds="${ds}" data-pi="${pi}" onchange="togglePri(this)">
+              </div>`).join('')}
+            </div>
           </div>
         </div>
         <hr class="sec-divider">
         <div>
-          <div class="sec-label">✅ Tasks</div>
-          <div id="tasks-${ds}">
-            ${day.tasks
-              .map((t,ti) => ({t,ti}))
-              .filter(({t}) => appMode==='personal' || t.schedType==='work' || !t.schedType)
-              .map(({t,ti}) => taskHtml(ds,t,ti))
-              .join('')}
+          <div class="sec-label ${sectionCollapsed.schedule?'sec-collapsed':''}" data-sec="schedule" onclick="toggleSection('schedule')">
+            ⏰ Schedule <span class="sec-chevron">▾</span>
           </div>
-          ${dayRecurTasksHtml(ds)}
-          <button class="add-btn" onclick="addTask('${ds}')">＋ Add task</button>
+          <div class="sec-body ${sectionCollapsed.schedule?'sec-collapsed':''}" data-sec="schedule">
+            <div class="sec-body-inner">
+              <div class="schedule-wrap" id="sched-wrap-${ds}">
+                ${renderScheduleSlots(ds)}
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr class="sec-divider">
+        <div>
+          <div class="sec-label ${sectionCollapsed.tasks?'sec-collapsed':''}" data-sec="tasks" onclick="toggleSection('tasks')">
+            ✅ Tasks <span class="sec-chevron">▾</span>
+          </div>
+          <div class="sec-body ${sectionCollapsed.tasks?'sec-collapsed':''}" data-sec="tasks">
+            <div class="sec-body-inner">
+              <div id="tasks-${ds}">
+                ${day.tasks
+                  .map((t,ti) => ({t,ti}))
+                  .filter(({t}) => appMode==='personal' || t.schedType==='work' || !t.schedType)
+                  .map(({t,ti}) => taskHtml(ds,t,ti))
+                  .join('')}
+              </div>
+              ${dayRecurTasksHtml(ds)}
+              <button class="add-btn" onclick="addTask('${ds}')">＋ Add task</button>
+            </div>
+          </div>
         </div>
         ${appMode==='personal' ? `
         <hr class="sec-divider">
         <div>
-          <div class="sec-label">🔥 Habits</div>
+          <div class="sec-label ${sectionCollapsed.habits?'sec-collapsed':''}" data-sec="habits" onclick="toggleSection('habits')">
+            🔥 Habits <span class="sec-chevron">▾</span>
+          </div>
+          <div class="sec-body ${sectionCollapsed.habits?'sec-collapsed':''}" data-sec="habits"><div class="sec-body-inner">
           ${day.habits.map((h,hi)=>{
             const stage=getHabitEvoStage(hi);
             const pid=getPokeId(hi,stage);
@@ -2305,17 +2344,32 @@ function renderWeek() {
               onclick="toggleHabit(this)">✓</div>
           </div>`;
           }).join('')}
+        </div></div>
         </div>
-        ${dayWorkoutCardHtml(ds)}
-        ${dayMealCardHtml(ds)}
-        <hr class="sec-divider">
         <div>
-          <div class="sec-label">🌙 Reflection</div>
-          ${REFL.map(r=>`
-          <div class="refl-label ${r.key==='well'?'well':r.key==='improve'?'imp':'grat'}">${r.label}</div>
-          <textarea class="reflection-input" rows="2" placeholder="…"
-            data-ds="${ds}" data-key="${r.key}"
-            oninput="setReflection(this)">${esc(day.reflection[r.key]||'')}</textarea>`).join('')}
+          <div class="sec-label ${sectionCollapsed.fitness?'sec-collapsed':''}" data-sec="fitness" onclick="toggleSection('fitness')">
+            💪 Fitness <span class="sec-chevron">▾</span>
+          </div>
+          <div class="sec-body ${sectionCollapsed.fitness?'sec-collapsed':''}" data-sec="fitness">
+            <div class="sec-body-inner">
+              ${dayWorkoutCardHtml(ds)}
+              ${dayMealCardHtml(ds)}
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="sec-label ${sectionCollapsed.reflection?'sec-collapsed':''}" data-sec="reflection" onclick="toggleSection('reflection')">
+            🌙 Reflection <span class="sec-chevron">▾</span>
+          </div>
+          <div class="sec-body ${sectionCollapsed.reflection?'sec-collapsed':''}" data-sec="reflection">
+            <div class="sec-body-inner">
+              ${REFL.map(r=>`
+              <div class="refl-label ${r.key==='well'?'well':r.key==='improve'?'imp':'grat'}">${r.label}</div>
+              <textarea class="reflection-input" rows="2" placeholder="…"
+                data-ds="${ds}" data-key="${r.key}"
+                oninput="setReflection(this)">${esc(day.reflection[r.key]||'')}</textarea>`).join('')}
+            </div>
+          </div>
         </div>` : ''}
       </div>`;
 
@@ -3932,6 +3986,20 @@ function clearAllDoneShop() {
 }
 
 // ── Pokémon Habit Evolution ────────────────────────────────────────────────
+// ── Collapsible sections ───────────────────────────────────────────────────
+const sectionCollapsed = { intention:false, priorities:false, schedule:false, tasks:false, habits:false, fitness:false, reflection:false };
+
+function toggleSection(key) {
+  sectionCollapsed[key] = !sectionCollapsed[key];
+  const collapsed = sectionCollapsed[key];
+  document.querySelectorAll(`.sec-label[data-sec="${key}"]`).forEach(el => {
+    el.classList.toggle('sec-collapsed', collapsed);
+  });
+  document.querySelectorAll(`.sec-body[data-sec="${key}"]`).forEach(el => {
+    el.classList.toggle('sec-collapsed', collapsed);
+  });
+}
+
 // Each habit slot (index 0-7+) maps to a Pokémon evolution chain.
 // Completion counts are stored globally; stage advances every 3 and 7 completions.
 const POKE_CHAINS = [
